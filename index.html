@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shape Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f1f1f1;
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background-color: white;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    #description {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      font-size: 1.1rem;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #feedback {
+      margin-top: 1rem;
+      font-weight: bold;
+      height: 1.5rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Guess the Shape!</h1>
+  <div id="description">Loading question...</div>
+  <input type="text" id="userInput" placeholder="Your answer here..." />
+  <button id="submitBtn">Submit</button>
+  <div id="feedback"></div>
+
+  <script>
+    const questions = [
+      {
+        description: "I have 3 sides and 3 angles. What shape am I?",
+        answer: "triangle"
+      },
+      {
+        description: "I have 4 equal sides and 4 right angles. What shape am I?",
+        answer: "square"
+      },
+      {
+        description: "I am perfectly round and have no corners.",
+        answer: "circle"
+      },
+      {
+        description: "I have 6 sides. What shape am I?",
+        answer: "hexagon"
+      },
+      {
+        description: "I have 4 sides, but only 2 are parallel.",
+        answer: "trapezoid"
+      }
+    ];
+
+    let currentIndex = 0;
+
+    const descriptionEl = document.getElementById("description");
+    const inputEl = document.getElementById("userInput");
+    const feedbackEl = document.getElementById("feedback");
+    const buttonEl = document.getElementById("submitBtn");
+
+    function showQuestion() {
+      if (currentIndex < questions.length) {
+        descriptionEl.textContent = questions[currentIndex].description;
+        inputEl.value = '';
+        feedbackEl.textContent = '';
+        inputEl.focus();
+      } else {
+        descriptionEl.textContent = "🎉 You've completed the shape quiz!";
+        inputEl.style.display = "none";
+        buttonEl.style.display = "none";
+        feedbackEl.textContent = '';
+      }
+    }
+
+    function checkAnswer() {
+      const userAnswer = inputEl.value.trim().toLowerCase();
+      const correctAnswer = questions[currentIndex].answer.toLowerCase();
+
+      if (userAnswer === correctAnswer) {
+        feedbackEl.textContent = "✅ Correct!";
+        feedbackEl.style.color = "green";
+        currentIndex++;
+        setTimeout(showQuestion, 1000);
+      } else {
+        feedbackEl.textContent = "❌ Try again!";
+        feedbackEl.style.color = "red";
+      }
+    }
+
+    buttonEl.addEventListener("click", checkAnswer);
+
+    inputEl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        checkAnswer();
+      }
+    });
+
+    // Start the quiz
+    showQuestion();
+  </script>
+
+</body>
+</html>
