@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Haiku Generator</title>
+  <style>
+    body {
+      font-family: 'Georgia', serif;
+      background-color: #f9f9f9;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 1rem;
+    }
+
+    input[type="text"] {
+      width: 80%;
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      margin-top: 1rem;
+      cursor: pointer;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .haiku {
+      margin-top: 2rem;
+      font-size: 1.3rem;
+      font-style: italic;
+      white-space: pre-line;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Haiku Generator</h1>
+  <p>Enter a topic and get a haiku!</p>
+
+  <input type="text" id="topicInput" placeholder="Type a topic (e.g., rain)" />
+  <br>
+  <button onclick="generateHaiku()">Generate Haiku</button>
+
+  <div class="haiku" id="haikuDisplay"></div>
+
+  <script>
+    const sampleHaikus = [
+      (topic) => `${topic} drifts slowly\nWhispers in the quiet breeze\nThoughts float like petals`,
+      (topic) => `Under ${topic}'s gaze\nMoments fall like softest rain\nPeace beyond the noise`,
+      (topic) => `${topic} at sunrise\nGolden light begins to hum\nHope opens like blooms`,
+      (topic) => `In the heart of ${topic}\nA secret rhythm pulses\nSteady, still, and true`,
+      (topic) => `When ${topic} arrives\nEven silence leans to hear\nNature holds its breath`,
+      (topic) => `${topic} glows at night\nStars respond with silver tones\nDreams begin to stir`,
+    ];
+
+    function generateHaiku() {
+      const topic = document.getElementById("topicInput").value.trim();
+      const display = document.getElementById("haikuDisplay");
+
+      if (topic === "") {
+        display.textContent = "Please enter a topic!";
+        return;
+      }
+
+      const randomIndex = Math.floor(Math.random() * sampleHaikus.length);
+      const haiku = sampleHaikus[randomIndex](topic.toLowerCase());
+      display.textContent = haiku;
+    }
+  </script>
+
+</body>
+</html>
