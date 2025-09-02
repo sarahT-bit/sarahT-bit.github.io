@@ -2,167 +2,124 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>CS Subject Tutors</title>
+  <title>CS Tutor Session</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      padding: 2rem;
-      background: linear-gradient(to right, #e0f7fa, #fce4ec);
+      background: #f4f4f4;
     }
 
-    h1 {
-      text-align: center;
-      color: #2e3c43;
-    }
-
-    .subject {
-      margin-top: 2rem;
-      border-top: 1px solid #ccc;
-      padding-top: 1rem;
-    }
-
-    .tutor-card {
-      background: #fff;
-      border: 1px solid #ddd;
+    header {
+      background: #3949ab;
+      color: white;
       padding: 1rem;
-      margin: 0.5rem 0;
-      border-radius: 5px;
+      text-align: center;
     }
 
-    button {
-      padding: 6px 10px;
-      font-size: 14px;
-      margin-top: 8px;
-      cursor: pointer;
+    .session-container {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 1rem;
+      gap: 1rem;
     }
 
-    #message-box {
-      display: none;
-      position: fixed;
-      top: 20%;
-      left: 50%;
-      transform: translateX(-50%);
+    .tool {
       background: white;
-      padding: 20px;
-      border: 2px solid #555;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      width: 300px;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      flex: 1 1 45%;
+      min-height: 300px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
-    #overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.4);
+    textarea, pre, canvas {
+      width: 100%;
+      height: 100%;
+      border: none;
+      resize: none;
+      font-family: monospace;
+      font-size: 14px;
+    }
+
+    #whiteboard {
+      border: 1px solid #ddd;
+      cursor: crosshair;
+    }
+
+    .video-placeholder {
+      background: #ddd;
+      height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #555;
+    }
+
+    @media(max-width: 768px) {
+      .tool {
+        flex: 1 1 100%;
+      }
     }
   </style>
 </head>
 <body>
 
-  <h1>👨‍🏫 Computer Science Tutors</h1>
+<header>
+  <h1>👨‍🏫 Live CS Tutoring Session</h1>
+  <p>Tutor & Student Interactive Session</p>
+</header>
 
-  <div id="subjects-container"></div>
-
-  <!-- Message Modal -->
-  <div id="overlay"></div>
-  <div id="message-box">
-    <h3>Message <span id="tutorName"></span></h3>
-    <textarea id="messageText" rows="5" style="width: 100%;" placeholder="Type your question here..."></textarea>
-    <br />
-    <button onclick="sendMessage()">Send</button>
-    <button onclick="closeMessageBox()">Cancel</button>
+<div class="session-container">
+  <!-- Video -->
+  <div class="tool">
+    <div class="video-placeholder">
+      🔴 Video Chat Placeholder (use Jitsi/WebRTC)
+    </div>
   </div>
 
-  <script>
-    const subjects = [
-      {
-        name: "Theory of Computation",
-        tutors: [
-          { name: "Alice", email: "alice@cs.com" },
-          { name: "Bob", email: "bob@cs.com" }
-        ]
-      },
-      {
-        name: "Data Structures",
-        tutors: [
-          { name: "Charlie", email: "charlie@cs.com" },
-          { name: "Dana", email: "dana@cs.com" }
-        ]
-      },
-      {
-        name: "Algorithms",
-        tutors: [
-          { name: "Eve", email: "eve@cs.com" }
-        ]
-      },
-      {
-        name: "Operating Systems",
-        tutors: [
-          { name: "Frank", email: "frank@cs.com" }
-        ]
-      },
-      {
-        name: "Databases",
-        tutors: [
-          { name: "Grace", email: "grace@cs.com" }
-        ]
-      }
-    ];
+  <!-- Whiteboard -->
+  <div class="tool">
+    <h3>🖊️ Whiteboard</h3>
+    <canvas id="whiteboard" width="400" height="300"></canvas>
+  </div>
 
-    const subjectsContainer = document.getElementById('subjects-container');
-    const messageBox = document.getElementById('message-box');
-    const overlay = document.getElementById('overlay');
-    const tutorNameEl = document.getElementById('tutorName');
-    let currentTutor = null;
+  <!-- Code Editor -->
+  <div class="tool">
+    <h3>💻 Code Editor</h3>
+    <textarea id="codeEditor">// Write your code here...</textarea>
+  </div>
 
-    function renderSubjects() {
-      subjects.forEach(subject => {
-        const div = document.createElement('div');
-        div.className = 'subject';
-        div.innerHTML = `<h2>${subject.name}</h2>`;
+  <!-- Text Editor -->
+  <div class="tool">
+    <h3>📝 Notes</h3>
+    <textarea id="textEditor" placeholder="Type regular notes or chat here..."></textarea>
+  </div>
+</div>
 
-        subject.tutors.forEach(tutor => {
-          const card = document.createElement('div');
-          card.className = 'tutor-card';
-          card.innerHTML = `
-            <strong>${tutor.name}</strong><br>
-            <em>${tutor.email}</em><br>
-            <button onclick="openMessageBox('${tutor.name}', '${tutor.email}')">Message</button>
-          `;
-          div.appendChild(card);
-        });
+<script>
+  // ✏️ Basic Whiteboard Drawing
+  const canvas = document.getElementById('whiteboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
 
-        subjectsContainer.appendChild(div);
-      });
-    }
+  canvas.addEventListener('mousedown', () => drawing = true);
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseout', () => drawing = false);
+  canvas.addEventListener('mousemove', draw);
 
-    function openMessageBox(name, email) {
-      currentTutor = { name, email };
-      tutorNameEl.textContent = name;
-      document.getElementById('messageText').value = '';
-      messageBox.style.display = 'block';
-      overlay.style.display = 'block';
-    }
+  function draw(e) {
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+    ctx.arc(e.clientX - rect.left, e.clientY - rect.top, 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+</script>
 
-    function closeMessageBox() {
-      messageBox.style.display = 'none';
-      overlay.style.display = 'none';
-    }
-
-    function sendMessage() {
-      const msg = document.getElementById('messageText').value.trim();
-      if (!msg) {
-        alert("Please write a message.");
-        return;
-      }
-
-      alert(`Message sent to ${currentTutor.name} (${currentTutor.email}):\n\n"${msg}"`);
-      closeMessageBox();
-    }
-
-    renderSubjects();
-  </script>
 </body>
 </html>
+
