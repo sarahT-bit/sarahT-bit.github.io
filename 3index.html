@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Theory of Computation Tutors</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: linear-gradient(to right, #e3f2fd, #fce4ec);
+    }
+    h1 {
+      text-align: center;
+    }
+    .topic {
+      margin-top: 2rem;
+      border-top: 1px solid #ccc;
+      padding-top: 1rem;
+    }
+    .tutor-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 1rem;
+      margin: 0.5rem 0;
+      border-radius: 5px;
+    }
+    button {
+      padding: 6px 10px;
+      font-size: 14px;
+      margin-top: 8px;
+      cursor: pointer;
+    }
+    #message-box {
+      display: none;
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      padding: 20px;
+      border: 2px solid #555;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    #overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>👨‍🏫 Theory of Computation Tutors</h1>
+
+  <div id="topics-container"></div>
+
+  <!-- Messaging Modal -->
+  <div id="overlay"></div>
+  <div id="message-box">
+    <h3>Message <span id="tutorName"></span></h3>
+    <textarea id="messageText" rows="5" style="width: 100%;" placeholder="Type your question here..."></textarea>
+    <br />
+    <button onclick="sendMessage()">Send</button>
+    <button onclick="closeMessageBox()">Cancel</button>
+  </div>
+
+  <script>
+    const topics = [
+      {
+        name: "Finite Automata",
+        tutors: [
+          { name: "Alice", email: "alice@toc.com" },
+          { name: "Bob", email: "bob@toc.com" }
+        ]
+      },
+      {
+        name: "Turing Machines",
+        tutors: [
+          { name: "Charlie", email: "charlie@toc.com" }
+        ]
+      },
+      {
+        name: "Complexity Theory",
+        tutors: [
+          { name: "Dana", email: "dana@toc.com" },
+          { name: "Eve", email: "eve@toc.com" }
+        ]
+      }
+    ];
+
+    const topicsContainer = document.getElementById('topics-container');
+    const messageBox = document.getElementById('message-box');
+    const overlay = document.getElementById('overlay');
+    const tutorNameEl = document.getElementById('tutorName');
+    let currentTutor = null;
+
+    function renderTopics() {
+      topics.forEach(topic => {
+        const div = document.createElement('div');
+        div.className = 'topic';
+        div.innerHTML = `<h2>${topic.name}</h2>`;
+
+        topic.tutors.forEach(tutor => {
+          const card = document.createElement('div');
+          card.className = 'tutor-card';
+          card.innerHTML = `
+            <strong>${tutor.name}</strong><br>
+            <em>${tutor.email}</em><br>
+            <button onclick="openMessageBox('${tutor.name}', '${tutor.email}')">Message</button>
+          `;
+          div.appendChild(card);
+        });
+
+        topicsContainer.appendChild(div);
+      });
+    }
+
+    function openMessageBox(name, email) {
+      currentTutor = { name, email };
+      tutorNameEl.textContent = name;
+      document.getElementById('messageText').value = '';
+      messageBox.style.display = 'block';
+      overlay.style.display = 'block';
+    }
+
+    function closeMessageBox() {
+      messageBox.style.display = 'none';
+      overlay.style.display = 'none';
+    }
+
+    function sendMessage() {
+      const msg = document.getElementById('messageText').value.trim();
+      if (!msg) {
+        alert("Please write a message.");
+        return;
+      }
+
+      alert(`Message sent to ${currentTutor.name} (${currentTutor.email}):\n\n"${msg}"`);
+      closeMessageBox();
+    }
+
+    // Initialize
+    renderTopics();
+  </script>
+</body>
+</html>
