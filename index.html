@@ -2,117 +2,167 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Guess the Rainbow Colors 🌈</title>
+  <title>CS Subject Tutors</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      text-align: center;
+      margin: 0;
       padding: 2rem;
-      background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
+      background: linear-gradient(to right, #e0f7fa, #fce4ec);
+    }
 
-    }
     h1 {
-      color: #6a1b9a;
+      text-align: center;
+      color: #2e3c43;
     }
-    input[type="text"] {
-      padding: 10px;
-      width: 200px;
-      font-size: 16px;
+
+    .subject {
+      margin-top: 2rem;
+      border-top: 1px solid #ccc;
+      padding-top: 1rem;
     }
+
+    .tutor-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 1rem;
+      margin: 0.5rem 0;
+      border-radius: 5px;
+    }
+
     button {
-      padding: 10px 15px;
-      font-size: 16px;
-      margin-left: 10px;
+      padding: 6px 10px;
+      font-size: 14px;
+      margin-top: 8px;
       cursor: pointer;
     }
-    #feedback {
-      margin-top: 1rem;
-      font-weight: bold;
+
+    #message-box {
+      display: none;
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      padding: 20px;
+      border: 2px solid #555;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      width: 300px;
     }
-    #guessed-list {
-      margin-top: 2rem;
-    }
-    .guessed-item {
-      display: inline-block;
-      background-color: #dcedc8;
-      padding: 8px 12px;
-      margin: 5px;
-      border-radius: 5px;
-      color: #33691e;
-    }
-    #win-message {
-      font-size: 1.5rem;
-      color: #2e7d32;
-      margin-top: 2rem;
+
+    #overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
     }
   </style>
 </head>
 <body>
-  <h1>Guess the Colors of the Rainbow 🌈</h1>
 
-  <input type="text" id="colorInput" placeholder="Enter a color" />
-  <button onclick="submitGuess()">Guess</button>
+  <h1>👨‍🏫 Computer Science Tutors</h1>
 
-  <div id="feedback"></div>
+  <div id="subjects-container"></div>
 
-  <div id="guessed-list"></div>
-
-  <div id="win-message"></div>
+  <!-- Message Modal -->
+  <div id="overlay"></div>
+  <div id="message-box">
+    <h3>Message <span id="tutorName"></span></h3>
+    <textarea id="messageText" rows="5" style="width: 100%;" placeholder="Type your question here..."></textarea>
+    <br />
+    <button onclick="sendMessage()">Send</button>
+    <button onclick="closeMessageBox()">Cancel</button>
+  </div>
 
   <script>
-    const rainbowColors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
-    let guessedColors = [];
-
-    function submitGuess() {
-      const input = document.getElementById('colorInput');
-      const color = input.value.trim().toLowerCase();
-      const feedback = document.getElementById('feedback');
-      const guessedList = document.getElementById('guessed-list');
-      const winMessage = document.getElementById('win-message');
-
-      input.value = '';
-      feedback.textContent = '';
-
-      if (!color) {
-        feedback.textContent = "Please enter a color.";
-        return;
+    const subjects = [
+      {
+        name: "Theory of Computation",
+        tutors: [
+          { name: "Alice", email: "alice@cs.com" },
+          { name: "Bob", email: "bob@cs.com" }
+        ]
+      },
+      {
+        name: "Data Structures",
+        tutors: [
+          { name: "Charlie", email: "charlie@cs.com" },
+          { name: "Dana", email: "dana@cs.com" }
+        ]
+      },
+      {
+        name: "Algorithms",
+        tutors: [
+          { name: "Eve", email: "eve@cs.com" }
+        ]
+      },
+      {
+        name: "Operating Systems",
+        tutors: [
+          { name: "Frank", email: "frank@cs.com" }
+        ]
+      },
+      {
+        name: "Databases",
+        tutors: [
+          { name: "Grace", email: "grace@cs.com" }
+        ]
       }
+    ];
 
-      if (!rainbowColors.includes(color)) {
-        feedback.textContent = `"${color}" is not a rainbow color. Try again!`;
-        feedback.style.color = 'red';
-        return;
-      }
+    const subjectsContainer = document.getElementById('subjects-container');
+    const messageBox = document.getElementById('message-box');
+    const overlay = document.getElementById('overlay');
+    const tutorNameEl = document.getElementById('tutorName');
+    let currentTutor = null;
 
-      if (guessedColors.includes(color)) {
-        feedback.textContent = `You already guessed "${color}".`;
-        feedback.style.color = 'orange';
-        return;
-      }
+    function renderSubjects() {
+      subjects.forEach(subject => {
+        const div = document.createElement('div');
+        div.className = 'subject';
+        div.innerHTML = `<h2>${subject.name}</h2>`;
 
-      guessedColors.push(color);
+        subject.tutors.forEach(tutor => {
+          const card = document.createElement('div');
+          card.className = 'tutor-card';
+          card.innerHTML = `
+            <strong>${tutor.name}</strong><br>
+            <em>${tutor.email}</em><br>
+            <button onclick="openMessageBox('${tutor.name}', '${tutor.email}')">Message</button>
+          `;
+          div.appendChild(card);
+        });
 
-      // Update guessed list display
-      const span = document.createElement('span');
-      span.textContent = color;
-      span.className = 'guessed-item';
-      guessedList.appendChild(span);
-
-      feedback.textContent = `Correct! You guessed "${color}".`;
-      feedback.style.color = 'green';
-
-      // Check win condition
-      if (guessedColors.length === rainbowColors.length) {
-        winMessage.textContent = "🎉 You guessed all the colors of the rainbow!";
-      }
+        subjectsContainer.appendChild(div);
+      });
     }
 
-    // Allow pressing Enter key to submit
-    document.getElementById("colorInput").addEventListener("keypress", function(event) {
-      if (event.key === "Enter") {
-        submitGuess();
+    function openMessageBox(name, email) {
+      currentTutor = { name, email };
+      tutorNameEl.textContent = name;
+      document.getElementById('messageText').value = '';
+      messageBox.style.display = 'block';
+      overlay.style.display = 'block';
+    }
+
+    function closeMessageBox() {
+      messageBox.style.display = 'none';
+      overlay.style.display = 'none';
+    }
+
+    function sendMessage() {
+      const msg = document.getElementById('messageText').value.trim();
+      if (!msg) {
+        alert("Please write a message.");
+        return;
       }
-    });
+
+      alert(`Message sent to ${currentTutor.name} (${currentTutor.email}):\n\n"${msg}"`);
+      closeMessageBox();
+    }
+
+    renderSubjects();
   </script>
 </body>
 </html>
