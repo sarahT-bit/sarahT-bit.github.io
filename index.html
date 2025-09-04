@@ -1,125 +1,207 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>CS Tutor Session</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: #f4f4f4;
-    }
-
-    header {
-      background: #3949ab;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-    }
-
-    .session-container {
-      display: flex;
-      flex-wrap: wrap;
-      padding: 1rem;
-      gap: 1rem;
-    }
-
-    .tool {
-      background: white;
-      padding: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      flex: 1 1 45%;
-      min-height: 300px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    textarea, pre, canvas {
-      width: 100%;
-      height: 100%;
-      border: none;
-      resize: none;
-      font-family: monospace;
-      font-size: 14px;
-    }
-
-    #whiteboard {
-      border: 1px solid #ddd;
-      cursor: crosshair;
-    }
-
-    .video-placeholder {
-      background: #ddd;
-      height: 300px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      color: #555;
-    }
-
-    @media(max-width: 768px) {
-      .tool {
-        flex: 1 1 100%;
-      }
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CS Tutoring Desktop App</title>
+<style>
+  body {
+    margin: 0; font-family: Arial, sans-serif; display: flex; flex-direction: column; height: 100vh;
+  }
+  header {
+    background: #1e1e1e; color: white; padding: 10px; text-align: center; font-size: 1.5rem;
+  }
+  #videos {
+    display: flex; justify-content: space-around; background: #333; padding: 10px;
+  }
+  video {
+    width: 45%; border-radius: 5px; background: black;
+  }
+  #tools {
+    flex: 1; display: flex; height: 50vh; background: #f5f5f5;
+  }
+  textarea, #whiteboard {
+    flex: 1; margin: 10px; border: 1px solid #ccc; border-radius: 5px; padding: 8px;
+    font-family: monospace; font-size: 1rem; resize: none; background: white;
+  }
+  #whiteboard {
+    cursor: crosshair;
+  }
+</style>
 </head>
 <body>
+<header>CS Tutoring 24/7 (Desktop Only)</header>
 
-<header>
-  <h1>👨‍🏫 Live CS Tutoring Session</h1>
-  <p>Tutor & Student Interactive Session</p>
-</header>
-
-<div class="session-container">
-  <!-- Video -->
-  <div class="tool">
-    <div class="video-placeholder">
-      🔴 Video Chat Placeholder (use Jitsi/WebRTC)
-    </div>
-  </div>
-
-  <!-- Whiteboard -->
-  <div class="tool">
-    <h3>🖊️ Whiteboard</h3>
-    <canvas id="whiteboard" width="400" height="300"></canvas>
-  </div>
-
-  <!-- Code Editor -->
-  <div class="tool">
-    <h3>💻 Code Editor</h3>
-    <textarea id="codeEditor">// Write your code here...</textarea>
-  </div>
-
-  <!-- Text Editor -->
-  <div class="tool">
-    <h3>📝 Notes</h3>
-    <textarea id="textEditor" placeholder="Type regular notes or chat here..."></textarea>
-  </div>
+<div id="videos">
+  <video id="localVideo" autoplay muted playsinline></video>
+  <video id="remoteVideo" autoplay playsinline></video>
 </div>
 
+<div id="tools">
+  <textarea id="codeEditor" spellcheck="false" placeholder="// Type your code here..."></textarea>
+  <canvas id="whiteboard"></canvas>
+  <textarea id="textEditor" placeholder="Write notes here..."></textarea>
+</div>
+
+<script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
 <script>
-  // ✏️ Basic Whiteboard Drawing
-  const canvas = document.getElementById('whiteboard');
-  const ctx = canvas.getContext('2d');
-  let drawing = false;
+  const socket = io('http://localhost:3000'); // Update if your backend URL changes
+  const roomId = 'cs-tutoring-room';
 
-  canvas.addEventListener('mousedown', () => drawing = true);
-  canvas.addEventListener('mouseup', () => drawing = false);
-  canvas.addEventListener('mouseout', () => drawing = false);
-  canvas.addEventListener('mousemove', draw);
+  // Join the room on connect
+  socket.emit('join-room', roomId);
 
-  function draw(e) {
-    if (!drawing) return;
-    const rect = canvas.getBoundingClientRect();
-    ctx.fillStyle = "black";
-    ctx.beginPath();
-    ctx.arc(e.clientX - rect.left, e.clientY - rect.top, 2, 0, Math.PI * 2);
-    ctx.fill();
+  // WebRTC Setup
+  const localVideo = document.getElementById('localVideo');
+  const remoteVideo = document.getElementById('remoteVideo');
+  let pc;
+
+  async function startWebRTC() {
+    pc = new RTCPeerConnection();
+
+    // Send ICE candidates to peer
+    pc.onicecandidate = event => {
+      if (event.candidate) {
+        socket.emit('signal', { roomId, data: { candidate: event.candidate } });
+      }
+    };
+
+    // Display remote stream
+    pc.ontrack = event => {
+      remoteVideo.srcObject = event.streams[0];
+    };
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      localVideo.srcObject = stream;
+      stream.getTracks().forEach(track => pc.addTrack(track, stream));
+    } catch (e) {
+      alert('Could not access camera and microphone. Please allow permissions.');
+      console.error(e);
+    }
+
+    // Listen for signals from other peer
+    socket.on('signal', async ({ data }) => {
+      if (data.sdp) {
+        await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+        if (data.sdp.type === 'offer') {
+          const answer = await pc.createAnswer();
+          await pc.setLocalDescription(answer);
+          socket.emit('signal', { roomId, data: { sdp: pc.localDescription } });
+        }
+      } else if (data.candidate) {
+        try {
+          await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+        } catch (err) {
+          console.error('Error adding ICE candidate:', err);
+        }
+      }
+    });
+
+    // Create and send offer
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    socket.emit('signal', { roomId, data: { sdp: pc.localDescription } });
   }
-</script>
 
+  startWebRTC();
+
+  // Collaborative Code Editor
+  const codeEditor = document.getElementById('codeEditor');
+  codeEditor.addEventListener('input', () => {
+    socket.emit('code-change', { roomId, code: codeEditor.value });
+  });
+
+  socket.on('code-change', (newCode) => {
+    if (codeEditor.value !== newCode) {
+      codeEditor.value = newCode;
+    }
+  });
+
+  // Collaborative Text Editor
+  const textEditor = document.getElementById('textEditor');
+  textEditor.addEventListener('input', () => {
+    socket.emit('text-change', { roomId, text: textEditor.value });
+  });
+
+  socket.on('text-change', (newText) => {
+    if (textEditor.value !== newText) {
+      textEditor.value = newText;
+    }
+  });
+
+  // Collaborative Whiteboard
+  const whiteboard = document.getElementById('whiteboard');
+  const ctx = whiteboard.getContext('2d');
+
+  // Resize canvas to fit container
+  function resizeCanvas() {
+    whiteboard.width = whiteboard.clientWidth;
+    whiteboard.height = whiteboard.clientHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  let drawing = false;
+  let lastX = 0, lastY = 0;
+
+  function drawLine(x1, y1, x2, y2, emit) {
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.closePath();
+
+    if (!emit) return;
+
+    // Send normalized data
+    socket.emit('whiteboard-data', {
+      roomId,
+      data: {
+        x1: x1 / whiteboard.width,
+        y1: y1 / whiteboard.height,
+        x2: x2 / whiteboard.width,
+        y2: y2 / whiteboard.height,
+      }
+    });
+  }
+
+  whiteboard.addEventListener('mousedown', e => {
+    drawing = true;
+    lastX = e.offsetX;
+    lastY = e.offsetY;
+  });
+
+  whiteboard.addEventListener('mousemove', e => {
+    if (!drawing) return;
+    drawLine(lastX, lastY, e.offsetX, e.offsetY, true);
+    lastX = e.offsetX;
+    lastY = e.offsetY;
+  });
+
+  whiteboard.addEventListener('mouseup', () => {
+    drawing = false;
+  });
+
+  whiteboard.addEventListener('mouseout', () => {
+    drawing = false;
+  });
+
+  socket.on('whiteboard-data', data => {
+    // Denormalize coordinates
+    const x1 = data.x1 * whiteboard.width;
+    const y1 = data.y1 * whiteboard.height;
+    const x2 = data.x2 * whiteboard.width;
+    const y2 = data.y2 * whiteboard.height;
+    drawLine(x1, y1, x2, y2, false);
+  });
+</script>
 </body>
 </html>
+
+
 
