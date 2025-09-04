@@ -5,118 +5,131 @@
   <title>CS Tutoring Platform</title>
   <style>
     body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
+      margin: 0; padding: 0; height: 100%;
       font-family: Arial, sans-serif;
+      background: #f0f0f0;
     }
     header {
-      background: #222;
-      color: white;
-      padding: 15px;
-      text-align: center;
-      font-size: 1.5em;
+      background: #222; color: white;
+      padding: 15px; text-align: center; font-size: 1.5em;
     }
     #appContainer {
-      display: flex;
-      height: calc(100vh - 60px);
+      display: flex; height: calc(100vh - 60px);
     }
     #sidebar {
-      width: 150px;
-      background: #333;
-      display: flex;
-      flex-direction: column;
+      width: 150px; background: #333;
+      display: flex; flex-direction: column;
     }
     #sidebar button {
-      padding: 15px;
-      color: white;
-      background: none;
-      border: none;
-      text-align: left;
-      border-bottom: 1px solid #444;
-      cursor: pointer;
+      padding: 15px; color: white;
+      background: none; border: none; text-align: left;
+      border-bottom: 1px solid #444; cursor: pointer;
+      font-size: 1rem;
     }
-    #sidebar button:hover,
-    #sidebar button.active {
+    #sidebar button:hover, #sidebar button.active {
       background: #555;
     }
     #mainContent {
-      flex: 1;
-      position: relative;
+      flex: 1; position: relative;
+      background: white;
+      display: flex; flex-direction: column;
     }
     .toolSection {
-      display: none;
-      height: 100%;
+      display: none; flex: 1;
+      padding: 10px;
+      box-sizing: border-box;
+      overflow: hidden;
     }
     .toolSection.active {
-      display: block;
+      display: flex;
+      flex-direction: column;
     }
     textarea {
-      width: 100%;
-      height: 100%;
-      font-size: 1rem;
-      font-family: monospace;
-      resize: none;
-      border: none;
-      padding: 10px;
+      width: 100%; flex: 1;
+      font-size: 1rem; font-family: monospace;
+      resize: none; border: 1px solid #ccc; padding: 10px;
+      border-radius: 4px;
+      box-sizing: border-box;
+      background: #fafafa;
     }
     canvas#whiteboard {
-      width: 100%;
-      height: 100%;
-      background: #fff;
-      cursor: crosshair;
+      width: 100%; flex: 1;
+      background: #fff; cursor: crosshair;
+      border: 1px solid #ccc;
+      border-radius: 4px;
     }
     #videoCallPanel {
-      position: fixed;
-      top: 70px;
-      right: 10px;
-      width: 300px;
-      height: 450px;
-      background: #222;
-      border-radius: 8px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 0 8px rgba(0,0,0,0.4);
-      z-index: 10;
+      position: fixed; top: 70px; right: 10px;
+      width: 320px; height: 480px; background: #222;
+      border-radius: 8px; overflow: hidden;
+      display: flex; flex-direction: column;
+      box-shadow: 0 0 12px rgba(0,0,0,0.5); z-index: 10;
     }
     #videoCallPanel video {
-      width: 100%;
-      height: 60%;
-      object-fit: cover;
-      background: black;
+      width: 100%; height: 60%;
+      object-fit: cover; background: black;
     }
     #chatBox {
-      flex: 1;
-      background: #111;
-      display: flex;
-      flex-direction: column;
-    }
-    #chatMessages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 10px;
+      flex: 1; background: #111;
+      display: flex; flex-direction: column;
       color: white;
       font-size: 0.9rem;
     }
+    #chatMessages {
+      flex: 1; overflow-y: auto;
+      padding: 10px;
+    }
     #chatInputContainer {
       display: flex;
+      border-top: 1px solid #444;
     }
     #chatInput {
-      flex: 1;
-      border: none;
-      padding: 10px;
-      font-size: 1rem;
+      flex: 1; border: none; padding: 10px; font-size: 1rem;
+      background: #222; color: white;
+    }
+    #chatInput:focus {
+      outline: none;
+      background: #333;
     }
     #sendBtn {
-      background: #09f;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      cursor: pointer;
+      background: #09f; color: white; border: none;
+      padding: 10px 15px; cursor: pointer;
     }
     #sendBtn:hover {
       background: #06c;
+    }
+    #outputArea {
+      height: 30%;
+      background: #111; color: #0f0;
+      padding: 10px; font-family: monospace;
+      overflow-y: auto;
+      border-radius: 4px;
+      margin-top: 10px;
+      white-space: pre-wrap;
+    }
+    #codeControls {
+      margin-bottom: 10px;
+    }
+    #languageInput {
+      width: 75%;
+      font-size: 1rem;
+      padding: 5px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    #runCodeBtn {
+      padding: 6px 15px;
+      margin-left: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      background-color: #28a745;
+      color: white;
+    }
+    #runCodeBtn:hover {
+      background-color: #218838;
     }
   </style>
 </head>
@@ -129,127 +142,272 @@
       <button id="btnText">Text Editor</button>
     </div>
     <div id="mainContent">
+      <!-- Whiteboard -->
       <div id="whiteboardSection" class="toolSection active">
         <canvas id="whiteboard"></canvas>
       </div>
+
+      <!-- Code Editor -->
       <div id="codeEditorSection" class="toolSection">
-        <textarea id="codeEditor" placeholder="// Type code here..."></textarea>
+        <div id="codeControls">
+          <input
+            type="text"
+            id="languageInput"
+            placeholder="Enter language (e.g. python3, java, c++)"
+            spellcheck="false"
+            autocomplete="off"
+          />
+          <button id="runCodeBtn">Run</button>
+        </div>
+        <textarea
+          id="codeEditor"
+          placeholder="Write code here..."
+          spellcheck="false"
+          autocomplete="off"
+        ></textarea>
+        <pre id="outputArea">Output will appear here...</pre>
       </div>
+
+      <!-- Text Editor -->
       <div id="textEditorSection" class="toolSection">
-        <textarea id="textEditor" placeholder="Write notes here..."></textarea>
+        <textarea placeholder="Write your notes here..."></textarea>
       </div>
     </div>
   </div>
 
+  <!-- Video & Chat -->
   <div id="videoCallPanel">
     <video id="localVideo" autoplay muted playsinline></video>
-    <video id="remoteVideo" autoplay playsinline></video>
+    <video id="remoteVideo" autoplay playsinline style="display:none;"></video>
     <div id="chatBox">
       <div id="chatMessages"></div>
       <div id="chatInputContainer">
-        <input type="text" id="chatInput" placeholder="Type a message..." />
+        <input type="text" id="chatInput" placeholder="Type message..." autocomplete="off" />
         <button id="sendBtn">Send</button>
       </div>
     </div>
   </div>
 
   <script>
-    // Navigation
-    const whiteboardBtn = document.getElementById('btnWhiteboard');
-    const codeBtn = document.getElementById('btnCode');
-    const textBtn = document.getElementById('btnText');
-
-    const whiteboardSection = document.getElementById('whiteboardSection');
-    const codeSection = document.getElementById('codeEditorSection');
-    const textSection = document.getElementById('textEditorSection');
+    // Sidebar Navigation
+    const whiteboardBtn = document.getElementById("btnWhiteboard");
+    const codeBtn = document.getElementById("btnCode");
+    const textBtn = document.getElementById("btnText");
+    const whiteboardSection = document.getElementById("whiteboardSection");
+    const codeSection = document.getElementById("codeEditorSection");
+    const textSection = document.getElementById("textEditorSection");
 
     function activateSection(section) {
-      whiteboardSection.classList.remove('active');
-      codeSection.classList.remove('active');
-      textSection.classList.remove('active');
+      whiteboardSection.classList.remove("active");
+      codeSection.classList.remove("active");
+      textSection.classList.remove("active");
+      whiteboardBtn.classList.remove("active");
+      codeBtn.classList.remove("active");
+      textBtn.classList.remove("active");
 
-      whiteboardBtn.classList.remove('active');
-      codeBtn.classList.remove('active');
-      textBtn.classList.remove('active');
-
-      if (section === 'whiteboard') {
-        whiteboardSection.classList.add('active');
-        whiteboardBtn.classList.add('active');
-      } else if (section === 'code') {
-        codeSection.classList.add('active');
-        codeBtn.classList.add('active');
+      if (section === "whiteboard") {
+        whiteboardSection.classList.add("active");
+        whiteboardBtn.classList.add("active");
+      } else if (section === "code") {
+        codeSection.classList.add("active");
+        codeBtn.classList.add("active");
       } else {
-        textSection.classList.add('active');
-        textBtn.classList.add('active');
+        textSection.classList.add("active");
+        textBtn.classList.add("active");
       }
     }
 
-    whiteboardBtn.addEventListener('click', () => activateSection('whiteboard'));
-    codeBtn.addEventListener('click', () => activateSection('code'));
-    textBtn.addEventListener('click', () => activateSection('text'));
+    whiteboardBtn.onclick = () => activateSection("whiteboard");
+    codeBtn.onclick = () => activateSection("code");
+    textBtn.onclick = () => activateSection("text");
 
-    // Whiteboard Drawing (basic)
-    const canvas = document.getElementById('whiteboard');
-    const ctx = canvas.getContext('2d');
+    // Whiteboard
+    const canvas = document.getElementById("whiteboard");
+    const ctx = canvas.getContext("2d");
     let drawing = false;
 
     function resizeCanvas() {
       canvas.width = whiteboardSection.clientWidth;
       canvas.height = whiteboardSection.clientHeight;
     }
-    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
-    canvas.addEventListener('mousedown', () => drawing = true);
-    canvas.addEventListener('mouseup', () => drawing = false);
-    canvas.addEventListener('mousemove', draw);
-
-    function draw(e) {
+    canvas.addEventListener("mousedown", () => (drawing = true));
+    canvas.addEventListener("mouseup", () => (drawing = false));
+    canvas.addEventListener("mouseout", () => (drawing = false));
+    canvas.addEventListener("mousemove", (e) => {
       if (!drawing) return;
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-
-      ctx.fillStyle = 'black';
+      ctx.fillStyle = "black";
       ctx.beginPath();
-      ctx.arc(x, y, 2, 0, Math.PI * 2);
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
       ctx.fill();
-    }
-
-    // Chat box (demo only, not real-time)
-    const chatInput = document.getElementById('chatInput');
-    const sendBtn = document.getElementById('sendBtn');
-    const chatMessages = document.getElementById('chatMessages');
-
-    sendBtn.addEventListener('click', () => {
-      const msg = chatInput.value.trim();
-      if (msg) {
-        const div = document.createElement('div');
-        div.textContent = "You: " + msg;
-        chatMessages.appendChild(div);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        chatInput.value = "";
-      }
     });
 
-    // Video placeholders (real-time requires WebRTC + backend)
-    const localVideo = document.getElementById('localVideo');
-    const remoteVideo = document.getElementById('remoteVideo');
+    // Language name to Judge0 ID mapping
+    const languageMap = {
+      c: 50,
+      cpp: 54,
+      "c++": 54,
+      java: 62,
+      python: 71,
+      python3: 71,
+      javascript: 63,
+      js: 63,
+      ruby: 72,
+      go: 60,
+      rust: 73,
+      swift: 83,
+      php: 68,
+      csharp: 51,
+      scala: 74,
+      kotlin: 78,
+      perl: 69,
+      haskell: 55,
+      "objective-c": 52,
+      typescript: 74,
+      bash: 46,
+      "sh": 46,
+      lua: 64,
+      r: 80,
+      dart: 88,
+      sql: 84,
+      // Add more if needed
+    };
 
-    async function initVideo() {
+    // Code Runner
+    const runBtn = document.getElementById("runCodeBtn");
+    runBtn.addEventListener("click", runCode);
+
+    async function runCode() {
+      const code = document.getElementById("codeEditor").value;
+      const langInputRaw = document
+        .getElementById("languageInput")
+        .value.trim()
+        .toLowerCase();
+
+      if (!code) {
+        alert("Please enter some code to run.");
+        return;
+      }
+      if (!langInputRaw) {
+        alert("Please enter the programming language.");
+        return;
+      }
+
+      const language_id = languageMap[langInputRaw];
+      if (!language_id) {
+        alert(
+          `Language "${langInputRaw}" not supported or misspelled. Please enter a valid language like python3, java, c++, javascript, etc.`
+        );
+        return;
+      }
+
+      const outputArea = document.getElementById("outputArea");
+      outputArea.textContent = "Running...";
+
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        localVideo.srcObject = stream;
-        // You'd need signaling to send stream to remote user
-      } catch (e) {
-        console.error('Video init error:', e);
+        const response = await fetch(
+          "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true",
+          {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+              "X-RapidAPI-Key": "YOUR_RAPIDAPI_KEY", // REPLACE HERE
+              "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
+            },
+            body: JSON.stringify({
+              source_code: code,
+              language_id: language_id,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            `Judge0 API error: ${response.status} ${response.statusText}`
+          );
+        }
+
+        const result = await response.json();
+
+        outputArea.textContent =
+          result.stdout ||
+          result.stderr ||
+          result.compile_output ||
+          "No output returned.";
+      } catch (error) {
+        outputArea.textContent = "Error running code: " + error.message;
       }
     }
 
+    // Video (local stream demo only)
+    const localVideo = document.getElementById("localVideo");
+    async function initVideo() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false,
+        });
+        localVideo.srcObject = stream;
+      } catch (err) {
+        console.error("Video error:", err);
+      }
+    }
     initVideo();
+
+    // Chat demo: local only (no real tutor connection)
+    const chatInput = document.getElementById("chatInput");
+    const chatMessages = document.getElementById("chatMessages");
+    const sendBtn = document.getElementById("sendBtn");
+
+    function appendMessage(sender, text) {
+      const msgDiv = document.createElement("div");
+      msgDiv.textContent = `${sender}: ${text}`;
+      msgDiv.style.marginBottom = "8px";
+      if (sender === "Tutor") {
+        msgDiv.style.color = "#4af"; // tutor messages blue-ish
+      } else {
+        msgDiv.style.color = "#afa"; // student messages green-ish
+      }
+      chatMessages.appendChild(msgDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Simulate tutor typing indicator and reply after student sends message
+    sendBtn.addEventListener("click", () => {
+      const text = chatInput.value.trim();
+      if (!text) return;
+      appendMessage("Student", text);
+      chatInput.value = "";
+      // Tutor typing indicator
+      const typingDiv = document.createElement("div");
+      typingDiv.textContent = "Tutor is typing...";
+      typingDiv.style.fontStyle = "italic";
+      typingDiv.style.color = "#888";
+      chatMessages.appendChild(typingDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      // Simulate tutor reply delay
+      setTimeout(() => {
+        chatMessages.removeChild(typingDiv);
+        appendMessage("Tutor", "Thanks for your message! How can I help?");
+      }, 2000);
+    });
+
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        sendBtn.click();
+      }
+    });
   </script>
 </body>
 </html>
+
 
 
 
