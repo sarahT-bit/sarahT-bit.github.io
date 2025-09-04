@@ -3,55 +3,225 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>CS Tutoring Desktop App</title>
+<title>CS Tutoring App - Sectioned Layout</title>
 <style>
-  body {
-    margin: 0; font-family: Arial, sans-serif; display: flex; flex-direction: column; height: 100vh;
+  body, html {
+    margin: 0; padding: 0; height: 100%; font-family: Arial, sans-serif; background: #f0f0f0;
+    display: flex; flex-direction: column;
   }
   header {
-    background: #1e1e1e; color: white; padding: 10px; text-align: center; font-size: 1.5rem;
+    background: #222; color: white; padding: 15px; font-size: 1.5rem; text-align: center;
+    flex-shrink: 0;
   }
-  #videos {
-    display: flex; justify-content: space-around; background: #333; padding: 10px;
+  #container {
+    flex: 1; display: flex; height: calc(100vh - 56px); /* header height */
   }
-  video {
-    width: 45%; border-radius: 5px; background: black;
+  /* Sidebar navigation */
+  #sidebar {
+    width: 150px; background: #333; color: white; display: flex; flex-direction: column;
   }
-  #tools {
-    flex: 1; display: flex; height: 50vh; background: #f5f5f5;
+  #sidebar button {
+    background: none; border: none; color: white; padding: 15px; font-size: 1rem; cursor: pointer;
+    border-bottom: 1px solid #444;
+    text-align: left;
+    transition: background 0.3s;
   }
+  #sidebar button:hover, #sidebar button.active {
+    background: #555;
+  }
+
+  /* Main content */
+  #mainContent {
+    flex: 1; background: white; position: relative; padding: 10px;
+    display: flex; flex-direction: column;
+  }
+
+  /* Video + chat container fixed top right */
+  #videoChatContainer {
+    position: fixed;
+    top: 60px; /* below header */
+    right: 10px;
+    width: 300px;
+    height: 450px;
+    background: #222;
+    border-radius: 8px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    color: white;
+    z-index: 10;
+  }
+
+  /* Video Call */
+  #videoContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    padding: 5px;
+    background: #000;
+    border-radius: 8px 8px 0 0;
+  }
+  #videoContainer video {
+    flex: 1;
+    border-radius: 5px;
+    background: black;
+    object-fit: cover;
+  }
+
+  /* Chat below video */
+  #chatContainer {
+    height: 180px;
+    background: #111;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0 0 8px 8px;
+  }
+  #chatMessages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    font-size: 0.9rem;
+    line-height: 1.3;
+  }
+  #chatMessages .message {
+    margin-bottom: 8px;
+  }
+  #chatMessages .message.user {
+    color: #0f0;
+  }
+  #chatMessages .message.tutor {
+    color: #09f;
+  }
+  #chatInputContainer {
+    display: flex;
+    border-top: 1px solid #333;
+  }
+  #chatInput {
+    flex: 1;
+    border: none;
+    padding: 8px 10px;
+    font-size: 1rem;
+    background: #222;
+    color: white;
+  }
+  #chatInput:focus {
+    outline: none;
+  }
+  #chatSendBtn {
+    background: #09f;
+    border: none;
+    color: white;
+    padding: 0 15px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  #chatSendBtn:hover {
+    background: #06c;
+  }
+
+  /* Tool Panels */
+  .toolPanel {
+    flex: 1;
+    display: none;
+    height: 100%;
+  }
+  .toolPanel.active {
+    display: block;
+  }
+
   textarea, #whiteboard {
-    flex: 1; margin: 10px; border: 1px solid #ccc; border-radius: 5px; padding: 8px;
-    font-family: monospace; font-size: 1rem; resize: none; background: white;
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-family: monospace;
+    font-size: 1rem;
+    resize: none;
   }
   #whiteboard {
     cursor: crosshair;
+    background: white;
   }
 </style>
 </head>
 <body>
-<header>CS Tutoring 24/7 (Desktop Only)</header>
+<header>CS Tutoring 24/7 - Sectioned Layout</header>
 
-<div id="videos">
-  <video id="localVideo" autoplay muted playsinline></video>
-  <video id="remoteVideo" autoplay playsinline></video>
+<div id="container">
+  <nav id="sidebar">
+    <button id="btnWhiteboard" class="active">Whiteboard</button>
+    <button id="btnCodeEditor">Code Editor</button>
+    <button id="btnTextEditor">Text Editor</button>
+  </nav>
+
+  <main id="mainContent">
+    <div id="whiteboardPanel" class="toolPanel active">
+      <canvas id="whiteboard"></canvas>
+    </div>
+    <div id="codeEditorPanel" class="toolPanel">
+      <textarea id="codeEditor" spellcheck="false" placeholder="// Type your code here..."></textarea>
+    </div>
+    <div id="textEditorPanel" class="toolPanel">
+      <textarea id="textEditor" placeholder="Write notes here..."></textarea>
+    </div>
+  </main>
 </div>
 
-<div id="tools">
-  <textarea id="codeEditor" spellcheck="false" placeholder="// Type your code here..."></textarea>
-  <canvas id="whiteboard"></canvas>
-  <textarea id="textEditor" placeholder="Write notes here..."></textarea>
+<!-- Video Call + Chat -->
+<div id="videoChatContainer">
+  <div id="videoContainer">
+    <video id="localVideo" autoplay muted playsinline></video>
+    <video id="remoteVideo" autoplay playsinline></video>
+  </div>
+  <div id="chatContainer">
+    <div id="chatMessages"></div>
+    <div id="chatInputContainer">
+      <input type="text" id="chatInput" placeholder="Type a message..." />
+      <button id="chatSendBtn">Send</button>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
 <script>
-  const socket = io('http://localhost:3000'); // Update if your backend URL changes
+  const socket = io('http://localhost:3000'); // Change as needed
   const roomId = 'cs-tutoring-room';
 
-  // Join the room on connect
+  // Join the room
   socket.emit('join-room', roomId);
 
-  // WebRTC Setup
+  // Sidebar buttons to switch tools
+  const btnWhiteboard = document.getElementById('btnWhiteboard');
+  const btnCodeEditor = document.getElementById('btnCodeEditor');
+  const btnTextEditor = document.getElementById('btnTextEditor');
+
+  const whiteboardPanel = document.getElementById('whiteboardPanel');
+  const codeEditorPanel = document.getElementById('codeEditorPanel');
+  const textEditorPanel = document.getElementById('textEditorPanel');
+
+  function setActivePanel(panelId) {
+    [whiteboardPanel, codeEditorPanel, textEditorPanel].forEach(panel => panel.classList.remove('active'));
+    [btnWhiteboard, btnCodeEditor, btnTextEditor].forEach(btn => btn.classList.remove('active'));
+
+    if (panelId === 'whiteboard') {
+      whiteboardPanel.classList.add('active');
+      btnWhiteboard.classList.add('active');
+      resizeCanvas(); // resize canvas on show
+    } else if (panelId === 'codeEditor') {
+      codeEditorPanel.classList.add('active');
+      btnCodeEditor.classList.add('active');
+    } else if (panelId === 'textEditor') {
+      textEditorPanel.classList.add('active');
+      btnTextEditor.classList.add('active');
+    }
+  }
+
+  btnWhiteboard.onclick = () => setActivePanel('whiteboard');
+  btnCodeEditor.onclick = () => setActivePanel('codeEditor');
+  btnTextEditor.onclick = () => setActivePanel('textEditor');
+
+  // WebRTC Video Call setup
   const localVideo = document.getElementById('localVideo');
   const remoteVideo = document.getElementById('remoteVideo');
   let pc;
@@ -59,14 +229,12 @@
   async function startWebRTC() {
     pc = new RTCPeerConnection();
 
-    // Send ICE candidates to peer
     pc.onicecandidate = event => {
       if (event.candidate) {
         socket.emit('signal', { roomId, data: { candidate: event.candidate } });
       }
     };
 
-    // Display remote stream
     pc.ontrack = event => {
       remoteVideo.srcObject = event.streams[0];
     };
@@ -76,11 +244,10 @@
       localVideo.srcObject = stream;
       stream.getTracks().forEach(track => pc.addTrack(track, stream));
     } catch (e) {
-      alert('Could not access camera and microphone. Please allow permissions.');
+      alert('Please allow camera and microphone access.');
       console.error(e);
     }
 
-    // Listen for signals from other peer
     socket.on('signal', async ({ data }) => {
       if (data.sdp) {
         await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
@@ -93,12 +260,11 @@
         try {
           await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
         } catch (err) {
-          console.error('Error adding ICE candidate:', err);
+          console.error('ICE candidate error:', err);
         }
       }
     });
 
-    // Create and send offer
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
     socket.emit('signal', { roomId, data: { sdp: pc.localDescription } });
@@ -112,7 +278,7 @@
     socket.emit('code-change', { roomId, code: codeEditor.value });
   });
 
-  socket.on('code-change', (newCode) => {
+  socket.on('code-change', newCode => {
     if (codeEditor.value !== newCode) {
       codeEditor.value = newCode;
     }
@@ -124,7 +290,7 @@
     socket.emit('text-change', { roomId, text: textEditor.value });
   });
 
-  socket.on('text-change', (newText) => {
+  socket.on('text-change', newText => {
     if (textEditor.value !== newText) {
       textEditor.value = newText;
     }
@@ -134,7 +300,6 @@
   const whiteboard = document.getElementById('whiteboard');
   const ctx = whiteboard.getContext('2d');
 
-  // Resize canvas to fit container
   function resizeCanvas() {
     whiteboard.width = whiteboard.clientWidth;
     whiteboard.height = whiteboard.clientHeight;
@@ -158,7 +323,6 @@
 
     if (!emit) return;
 
-    // Send normalized data
     socket.emit('whiteboard-data', {
       roomId,
       data: {
@@ -183,25 +347,56 @@
     lastY = e.offsetY;
   });
 
-  whiteboard.addEventListener('mouseup', () => {
-    drawing = false;
-  });
-
-  whiteboard.addEventListener('mouseout', () => {
-    drawing = false;
-  });
+  whiteboard.addEventListener('mouseup', () => { drawing = false; });
+  whiteboard.addEventListener('mouseout', () => { drawing = false; });
 
   socket.on('whiteboard-data', data => {
-    // Denormalize coordinates
     const x1 = data.x1 * whiteboard.width;
     const y1 = data.y1 * whiteboard.height;
     const x2 = data.x2 * whiteboard.width;
     const y2 = data.y2 * whiteboard.height;
     drawLine(x1, y1, x2, y2, false);
   });
+
+  // Chat functionality
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+  const chatSendBtn = document.getElementById('chatSendBtn');
+
+  // Add chat message to chat box
+  function addChatMessage(text, sender = 'user') {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'message ' + (sender === 'tutor' ? 'tutor' : 'user');
+    msgDiv.textContent = text;
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  chatSendBtn.addEventListener('click', () => {
+    const msg = chatInput.value.trim();
+    if (msg) {
+      addChatMessage(msg, 'user');
+      socket.emit('chat-message', { roomId, message: msg });
+      chatInput.value = '';
+    }
+  });
+
+  chatInput.addEventListener('keypress', e => {
+    if (e.key === 'Enter') {
+      chatSendBtn.click();
+      e.preventDefault();
+    }
+  });
+
+  socket.on('chat-message', ({ message, sender }) => {
+    // Prevent showing own messages twice (optional)
+    addChatMessage(message, sender === socket.id ? 'user' : 'tutor');
+  });
+
 </script>
 </body>
 </html>
+
 
 
 
