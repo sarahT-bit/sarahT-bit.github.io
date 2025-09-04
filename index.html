@@ -1,149 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>CS Tutoring App - Sectioned Layout</title>
-<style>
-  body, html {
-    margin: 0; padding: 0; height: 100%; font-family: Arial, sans-serif; background: #f0f0f0;
-    display: flex; flex-direction: column;
-  }
-  header {
-    background: #222; color: white; padding: 15px; font-size: 1.5rem; text-align: center;
-    flex-shrink: 0;
-  }
-  #container {
-    flex: 1; display: flex; height: calc(100vh - 56px); /* header height */
-  }
-  /* Sidebar navigation */
-  #sidebar {
-    width: 150px; background: #333; color: white; display: flex; flex-direction: column;
-  }
-  #sidebar button {
-    background: none; border: none; color: white; padding: 15px; font-size: 1rem; cursor: pointer;
-    border-bottom: 1px solid #444;
-    text-align: left;
-    transition: background 0.3s;
-  }
-  #sidebar button:hover, #sidebar button.active {
-    background: #555;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CS Tutoring App</title>
+  <style>
+    body, html {
+      margin: 0; padding: 0; height: 100%; font-family: Arial, sans-serif;
+      background: #f0f0f0; display: flex; flex-direction: column;
+    }
+    header {
+      background: #222; color: white; padding: 15px; font-size: 1.5rem; text-align: center;
+    }
+    #container {
+      flex: 1; display: flex; height: calc(100vh - 56px);
+    }
+    #sidebar {
+      width: 150px; background: #333; color: white; display: flex; flex-direction: column;
+    }
+    #sidebar button {
+      background: none; border: none; color: white; padding: 15px; font-size: 1rem; cursor: pointer;
+      border-bottom: 1px solid #444; text-align: left;
+    }
+    #sidebar button:hover, #sidebar button.active {
+      background: #555;
+    }
+    #mainContent {
+      flex: 1; background: white; position: relative; padding: 10px; display: flex; flex-direction: column;
+    }
+    #videoChatContainer {
+      position: fixed;
+      top: 60px; right: 10px; width: 300px; height: 450px;
+      background: #222; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.3);
+      display: flex; flex-direction: column; color: white; z-index: 10;
+    }
+    #videoContainer {
+      flex: 1; display: flex; flex-direction: row; gap: 5px; padding: 5px; background: #000;
+    }
+    #videoContainer video {
+      flex: 1; border-radius: 5px; background: black; object-fit: cover;
+    }
+    #chatContainer {
+      height: 180px; background: #111; display: flex; flex-direction: column;
+    }
+    #chatMessages {
+      flex: 1; overflow-y: auto; padding: 10px; font-size: 0.9rem;
+    }
+    .message { margin-bottom: 8px; }
+    .message.user { color: #0f0; }
+    .message.tutor { color: #09f; }
+    #typingIndicator {
+      font-style: italic; font-size: 0.85rem; color: #aaa; padding-left: 10px; height: 20px;
+    }
+    #chatInputContainer {
+      display: flex; border-top: 1px solid #333;
+    }
+    #chatInput {
+      flex: 1; border: none; padding: 8px 10px; font-size: 1rem; background: #222; color: white;
+    }
+    #chatInput:focus { outline: none; }
+    #chatSendBtn {
+      background: #09f; border: none; color: white; padding: 0 15px; cursor: pointer;
+    }
+    #chatSendBtn:hover { background: #06c; }
 
-  /* Main content */
-  #mainContent {
-    flex: 1; background: white; position: relative; padding: 10px;
-    display: flex; flex-direction: column;
-  }
-
-  /* Video + chat container fixed top right */
-  #videoChatContainer {
-    position: fixed;
-    top: 60px; /* below header */
-    right: 10px;
-    width: 300px;
-    height: 450px;
-    background: #222;
-    border-radius: 8px;
-    box-shadow: 0 0 8px rgba(0,0,0,0.3);
-    display: flex;
-    flex-direction: column;
-    color: white;
-    z-index: 10;
-  }
-
-  /* Video Call */
-  #videoContainer {
-    flex: 1;
-    display: flex;
-    flex-direction: row;
-    gap: 5px;
-    padding: 5px;
-    background: #000;
-    border-radius: 8px 8px 0 0;
-  }
-  #videoContainer video {
-    flex: 1;
-    border-radius: 5px;
-    background: black;
-    object-fit: cover;
-  }
-
-  /* Chat below video */
-  #chatContainer {
-    height: 180px;
-    background: #111;
-    display: flex;
-    flex-direction: column;
-    border-radius: 0 0 8px 8px;
-  }
-  #chatMessages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 10px;
-    font-size: 0.9rem;
-    line-height: 1.3;
-  }
-  #chatMessages .message {
-    margin-bottom: 8px;
-  }
-  #chatMessages .message.user {
-    color: #0f0;
-  }
-  #chatMessages .message.tutor {
-    color: #09f;
-  }
-  #chatInputContainer {
-    display: flex;
-    border-top: 1px solid #333;
-  }
-  #chatInput {
-    flex: 1;
-    border: none;
-    padding: 8px 10px;
-    font-size: 1rem;
-    background: #222;
-    color: white;
-  }
-  #chatInput:focus {
-    outline: none;
-  }
-  #chatSendBtn {
-    background: #09f;
-    border: none;
-    color: white;
-    padding: 0 15px;
-    cursor: pointer;
-    font-weight: bold;
-  }
-  #chatSendBtn:hover {
-    background: #06c;
-  }
-
-  /* Tool Panels */
-  .toolPanel {
-    flex: 1;
-    display: none;
-    height: 100%;
-  }
-  .toolPanel.active {
-    display: block;
-  }
-
-  textarea, #whiteboard {
-    width: 100%;
-    height: 100%;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-family: monospace;
-    font-size: 1rem;
-    resize: none;
-  }
-  #whiteboard {
-    cursor: crosshair;
-    background: white;
-  }
-</style>
+    .toolPanel {
+      flex: 1; display: none; height: 100%;
+    }
+    .toolPanel.active {
+      display: block;
+    }
+    textarea, #whiteboard {
+      width: 100%; height: 100%;
+      border-radius: 5px; border: 1px solid #ccc;
+      font-family: monospace; font-size: 1rem; resize: none;
+    }
+    #whiteboard {
+      cursor: crosshair; background: white;
+    }
+  </style>
 </head>
 <body>
 <header>CS Tutoring 24/7 - Sectioned Layout</header>
@@ -176,6 +111,7 @@
   </div>
   <div id="chatContainer">
     <div id="chatMessages"></div>
+    <div id="typingIndicator"></div>
     <div id="chatInputContainer">
       <input type="text" id="chatInput" placeholder="Type a message..." />
       <button id="chatSendBtn">Send</button>
@@ -183,15 +119,15 @@
   </div>
 </div>
 
+<!-- Socket.IO + WebRTC + App Logic -->
 <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
 <script>
-  const socket = io('http://localhost:3000'); // Change as needed
+  const socket = io('http://localhost:3000'); // replace with your server
   const roomId = 'cs-tutoring-room';
 
-  // Join the room
   socket.emit('join-room', roomId);
 
-  // Sidebar buttons to switch tools
+  // Panel switching
   const btnWhiteboard = document.getElementById('btnWhiteboard');
   const btnCodeEditor = document.getElementById('btnCodeEditor');
   const btnTextEditor = document.getElementById('btnTextEditor');
@@ -203,11 +139,10 @@
   function setActivePanel(panelId) {
     [whiteboardPanel, codeEditorPanel, textEditorPanel].forEach(panel => panel.classList.remove('active'));
     [btnWhiteboard, btnCodeEditor, btnTextEditor].forEach(btn => btn.classList.remove('active'));
-
     if (panelId === 'whiteboard') {
       whiteboardPanel.classList.add('active');
       btnWhiteboard.classList.add('active');
-      resizeCanvas(); // resize canvas on show
+      resizeCanvas();
     } else if (panelId === 'codeEditor') {
       codeEditorPanel.classList.add('active');
       btnCodeEditor.classList.add('active');
@@ -221,7 +156,7 @@
   btnCodeEditor.onclick = () => setActivePanel('codeEditor');
   btnTextEditor.onclick = () => setActivePanel('textEditor');
 
-  // WebRTC Video Call setup
+  // WebRTC
   const localVideo = document.getElementById('localVideo');
   const remoteVideo = document.getElementById('remoteVideo');
   let pc;
@@ -239,14 +174,9 @@
       remoteVideo.srcObject = event.streams[0];
     };
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      localVideo.srcObject = stream;
-      stream.getTracks().forEach(track => pc.addTrack(track, stream));
-    } catch (e) {
-      alert('Please allow camera and microphone access.');
-      console.error(e);
-    }
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    localVideo.srcObject = stream;
+    stream.getTracks().forEach(track => pc.addTrack(track, stream));
 
     socket.on('signal', async ({ data }) => {
       if (data.sdp) {
@@ -257,11 +187,7 @@
           socket.emit('signal', { roomId, data: { sdp: pc.localDescription } });
         }
       } else if (data.candidate) {
-        try {
-          await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-        } catch (err) {
-          console.error('ICE candidate error:', err);
-        }
+        await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
       }
     });
 
@@ -272,130 +198,13 @@
 
   startWebRTC();
 
-  // Collaborative Code Editor
+  // Code Editor
   const codeEditor = document.getElementById('codeEditor');
   codeEditor.addEventListener('input', () => {
     socket.emit('code-change', { roomId, code: codeEditor.value });
   });
-
-  socket.on('code-change', newCode => {
-    if (codeEditor.value !== newCode) {
-      codeEditor.value = newCode;
-    }
-  });
-
-  // Collaborative Text Editor
-  const textEditor = document.getElementById('textEditor');
-  textEditor.addEventListener('input', () => {
-    socket.emit('text-change', { roomId, text: textEditor.value });
-  });
-
-  socket.on('text-change', newText => {
-    if (textEditor.value !== newText) {
-      textEditor.value = newText;
-    }
-  });
-
-  // Collaborative Whiteboard
-  const whiteboard = document.getElementById('whiteboard');
-  const ctx = whiteboard.getContext('2d');
-
-  function resizeCanvas() {
-    whiteboard.width = whiteboard.clientWidth;
-    whiteboard.height = whiteboard.clientHeight;
-  }
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
-
-  let drawing = false;
-  let lastX = 0, lastY = 0;
-
-  function drawLine(x1, y1, x2, y2, emit) {
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
-    ctx.closePath();
-
-    if (!emit) return;
-
-    socket.emit('whiteboard-data', {
-      roomId,
-      data: {
-        x1: x1 / whiteboard.width,
-        y1: y1 / whiteboard.height,
-        x2: x2 / whiteboard.width,
-        y2: y2 / whiteboard.height,
-      }
-    });
-  }
-
-  whiteboard.addEventListener('mousedown', e => {
-    drawing = true;
-    lastX = e.offsetX;
-    lastY = e.offsetY;
-  });
-
-  whiteboard.addEventListener('mousemove', e => {
-    if (!drawing) return;
-    drawLine(lastX, lastY, e.offsetX, e.offsetY, true);
-    lastX = e.offsetX;
-    lastY = e.offsetY;
-  });
-
-  whiteboard.addEventListener('mouseup', () => { drawing = false; });
-  whiteboard.addEventListener('mouseout', () => { drawing = false; });
-
-  socket.on('whiteboard-data', data => {
-    const x1 = data.x1 * whiteboard.width;
-    const y1 = data.y1 * whiteboard.height;
-    const x2 = data.x2 * whiteboard.width;
-    const y2 = data.y2 * whiteboard.height;
-    drawLine(x1, y1, x2, y2, false);
-  });
-
-  // Chat functionality
-  const chatMessages = document.getElementById('chatMessages');
-  const chatInput = document.getElementById('chatInput');
-  const chatSendBtn = document.getElementById('chatSendBtn');
-
-  // Add chat message to chat box
-  function addChatMessage(text, sender = 'user') {
-    const msgDiv = document.createElement('div');
-    msgDiv.className = 'message ' + (sender === 'tutor' ? 'tutor' : 'user');
-    msgDiv.textContent = text;
-    chatMessages.appendChild(msgDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
-
-  chatSendBtn.addEventListener('click', () => {
-    const msg = chatInput.value.trim();
-    if (msg) {
-      addChatMessage(msg, 'user');
-      socket.emit('chat-message', { roomId, message: msg });
-      chatInput.value = '';
-    }
-  });
-
-  chatInput.addEventListener('keypress', e => {
-    if (e.key === 'Enter') {
-      chatSendBtn.click();
-      e.preventDefault();
-    }
-  });
-
-  socket.on('chat-message', ({ message, sender }) => {
-    // Prevent showing own messages twice (optional)
-    addChatMessage(message, sender === socket.id ? 'user' : 'tutor');
-  });
-
-</script>
-</body>
-</html>
+  socket.on('code-change', data => {
+    if (codeEditor.value !== data) codeEditor.value
 
 
 
