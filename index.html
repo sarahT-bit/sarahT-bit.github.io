@@ -230,6 +230,27 @@
             background-color: #fff;
         }
 
+        .chat-message {
+            margin-bottom: 8px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            max-width: 80%;
+        }
+
+        .chat-message.user {
+            background-color: #e6f7ff;
+            align-self: flex-end;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .chat-message.tutor {
+            background-color: #e2f0e2;
+            align-self: flex-start;
+            margin-right: auto;
+            text-align: left;
+        }
+
         #chat-input {
             width: calc(100% - 70px);
             padding: 10px;
@@ -330,6 +351,7 @@
 
             let selectedTopic = '';
             let userIssue = '';
+            let tutorContext = {}; // To store context for more intelligent replies
 
             // Function to show a page and hide others
             const showPage = (pageToShow) => {
@@ -359,6 +381,7 @@
                     setTimeout(() => {
                         showPage(tutoringSessionPage);
                         initializeVideoCall();
+                        appendChatMessage('Tutor', `Hello! I'm your tutor for ${selectedTopic}. You mentioned your issue is: "${userIssue}". Let's work through this together!`, 'tutor');
                     }, 3000); // Simulate 3-second connection time
                 } else {
                     alert('Please select a topic and describe your issue.');
@@ -367,23 +390,41 @@
 
             // Initialize Video Call (Placeholder for WebRTC or similar API)
             const initializeVideoCall = async () => {
-                // Placeholder for WebRTC implementation
-                // This would typically involve getting local media stream and connecting to a peer.
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                     localVideo.srcObject = stream;
-                    // In a real application, you would then use WebRTC to send this stream to the tutor
-                    // and receive the tutor's stream to remoteVideo.
                     console.log("Local video stream acquired.");
-
-                    // Simulate remote video stream for demonstration
-                    // In a real scenario, this would be the tutor's video feed
-                    // For now, let's just make remoteVideo visible.
-                    // remoteVideo.srcObject = tutorStream; // This would come from WebRTC peer connection
                 } catch (error) {
                     console.error("Error accessing media devices:", error);
                     alert("Could not access camera/microphone. Please ensure permissions are granted.");
                 }
+            };
+
+            // Tutor response logic
+            const generateTutorResponse = (studentMessage) => {
+                const lowerCaseMessage = studentMessage.toLowerCase();
+                let response = `That's an interesting point. Could you elaborate on that?`; // Default response
+
+                // Check for keywords related to correctness/solution
+                if (lowerCaseMessage.includes('am i right') || lowerCaseMessage.includes('is this correct') || lowerCaseMessage.includes('is this the way') || lowerCaseMessage.includes('problem solved')) {
+                    const random = Math.random();
+                    if (random < 0.5) { // 50% chance of 'yes'
+                        response = `Yes, that's a good approach! The reason it works is because you've correctly applied the principle of [relevant principle/concept]. For example, in ${selectedTopic}, this method is often used for [specific application].`;
+                    } else { // 50% chance of 'no'
+                        response = `Not quite, but you're on the right track! The issue might be related to [specific error/misconception]. Perhaps consider [alternative approach/concept] because [explanation of why it's better/different].`;
+                    }
+                } else if (lowerCaseMessage.includes('what if')) {
+                    response = `That's a great "what if" question! If you were to [student's suggestion], then [consequence/result] would happen due to [explanation related to selectedTopic]. What are your thoughts on that?`;
+                } else if (lowerCaseMessage.includes('can you explain')) {
+                    response = `Of course! When we talk about [topic student wants explained], it essentially means [brief definition]. In the context of ${selectedTopic}, this is crucial because [importance/application]. Do you have a specific aspect you'd like me to focus on?`;
+                } else if (lowerCaseMessage.includes('example')) {
+                    response = `Absolutely! Let's consider an example for ${selectedTopic}. Imagine you're building a [scenario]. To achieve [goal], you would use [concept/code snippet] like this: [provide a simple, relevant example].`;
+                } else if (lowerCaseMessage.includes('help me with')) {
+                    response = `Okay, let's break down "[specific issue]". What have you tried so far, or what are your initial ideas? That will help me understand where to start.`;
+                }
+                // Add more sophisticated checks and responses here based on common CS tutoring interactions
+
+                return response;
             };
 
             // Chat functionality
@@ -392,17 +433,21 @@
                 if (message) {
                     appendChatMessage('You', message, 'user');
                     chatInput.value = '';
-                    // In a real application, this message would be sent to the tutor via a WebSocket or similar API.
-                    // Simulate tutor response
+
+                    // Generate tutor response based on student's message
+                    const tutorResponse = generateTutorResponse(message);
+
+                    // Simulate tutor response delay
                     setTimeout(() => {
-                        appendChatMessage('Tutor', `Understood. Let's tackle your ${selectedTopic} issue about "${message}".`, 'tutor');
-                    }, 1500);
+                        appendChatMessage('Tutor', tutorResponse, 'tutor');
+                    }, 1500 + Math.random( * 000); // Random delay for natural feel
                 }
             });
 
             // Allow sending chat message with Enter key
             chatInput.addEventListener('keypress', (event) => {
                 if (event.key === 'Enter') {
+                    event.preventDefault(); // Prevent new line in input
                     sendChatButton.click();
                 }
             });
@@ -424,8 +469,10 @@
                     // In a real application, this would send the code to a backend compiler/interpreter
                     // and display the results. For this SPA, it's a console log.
                     alert(`Simulating code execution for ${language}:\n${code}\n\n(Results would appear here in a real platform)`);
+                    appendChatMessage('Tutor', `Okay, I see you've run some ${language} code. What were you expecting from this, or what part of the output is confusing you?`, 'tutor');
                 } else {
                     alert('Please enter both the programming language and your code to run.');
+                    appendChatMessage('Tutor', `It looks like you tried to run code without specifying the language or providing any code. Could you please fill in both fields?`, 'tutor');
                 }
             });
 
@@ -435,6 +482,7 @@
     </script>
 </body>
 </html>
+
 
 
 
