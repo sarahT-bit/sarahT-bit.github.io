@@ -235,6 +235,7 @@
             padding: 5px 10px;
             border-radius: 5px;
             max-width: 80%;
+            word-wrap: break-word; /* Ensure long words wrap */
         }
 
         .chat-message.user {
@@ -350,7 +351,7 @@
             const languageInput = document.getElementById('language-input');
 
             let selectedTopic = '';
-            let userIssue = '';
+            let userInitialIssue = ''; // Renamed for clarity to avoid confusion with ongoing chat
             let tutorContext = {}; // To store context for more intelligent replies
 
             // Function to show a page and hide others
@@ -373,15 +374,15 @@
 
             // Submit issue and find tutor
             submitIssueButton.addEventListener('click', () => {
-                userIssue = initialIssueTextarea.value.trim();
-                if (selectedTopic && userIssue) {
-                    console.log('User Issue:', userIssue);
+                userInitialIssue = initialIssueTextarea.value.trim();
+                if (selectedTopic && userInitialIssue) {
+                    console.log('User Initial Issue:', userInitialIssue);
                     showPage(connectingPage);
                     // Simulate tutor connection
                     setTimeout(() => {
                         showPage(tutoringSessionPage);
                         initializeVideoCall();
-                        appendChatMessage('Tutor', `Hello! I'm your tutor for ${selectedTopic}. You mentioned your issue is: "${userIssue}". Let's work through this together!`, 'tutor');
+                        appendChatMessage('Tutor', `Hello! I'm your tutor for ${selectedTopic}. You mentioned your initial issue is: "${userInitialIssue}". Let's work through this together. What's the first thing you'd like to discuss or show me?`, 'tutor');
                     }, 3000); // Simulate 3-second connection time
                 } else {
                     alert('Please select a topic and describe your issue.');
@@ -403,26 +404,52 @@
             // Tutor response logic
             const generateTutorResponse = (studentMessage) => {
                 const lowerCaseMessage = studentMessage.toLowerCase();
-                let response = `That's an interesting point. Could you elaborate on that?`; // Default response
+                let response = `I'm not entirely sure what you mean by that. Could you rephrase or provide more context?`; // Default confusion response
 
-                // Check for keywords related to correctness/solution
-                if (lowerCaseMessage.includes('am i right') || lowerCaseMessage.includes('is this correct') || lowerCaseMessage.includes('is this the way') || lowerCaseMessage.includes('problem solved')) {
+                // Greetings
+                if (lowerCaseMessage.includes('hello') || lowerCaseMessage.includes('hi') || lowerCaseMessage.includes('hey')) {
+                    return `Hello there! How can I assist you further with ${selectedTopic} today?`;
+                }
+
+                // Check for correctness/solution related questions
+                if (lowerCaseMessage.includes('am i right') || lowerCaseMessage.includes('is this correct') || lowerCaseMessage.includes('is this the way') || lowerCaseMessage.includes('problem solved') || lowerCaseMessage.includes('should i')) {
                     const random = Math.random();
                     if (random < 0.5) { // 50% chance of 'yes'
-                        response = `Yes, that's a good approach! The reason it works is because you've correctly applied the principle of [relevant principle/concept]. For example, in ${selectedTopic}, this method is often used for [specific application].`;
+                        response = `Yes, that's a very good approach! Your understanding of [relevant concept] seems solid, and applying it this way is efficient because [brief explanation].`;
                     } else { // 50% chance of 'no'
-                        response = `Not quite, but you're on the right track! The issue might be related to [specific error/misconception]. Perhaps consider [alternative approach/concept] because [explanation of why it's better/different].`;
+                        response = `Hmm, I see what you're trying to do, but that might not be the most effective way for this particular problem. The main issue could be with [specific error/misconception]. Perhaps consider [alternative approach/concept] because [explanation of why it's better/different]. What are your thoughts on that?`;
                     }
-                } else if (lowerCaseMessage.includes('what if')) {
-                    response = `That's a great "what if" question! If you were to [student's suggestion], then [consequence/result] would happen due to [explanation related to selectedTopic]. What are your thoughts on that?`;
-                } else if (lowerCaseMessage.includes('can you explain')) {
-                    response = `Of course! When we talk about [topic student wants explained], it essentially means [brief definition]. In the context of ${selectedTopic}, this is crucial because [importance/application]. Do you have a specific aspect you'd like me to focus on?`;
+                } else if (lowerCaseMessage.includes('what if') || lowerCaseMessage.includes('if i do')) {
+                    response = `That's a great "what if" question! If you were to [student's suggestion/action], then [likely consequence/result] would happen due to [explanation related to ${selectedTopic}]. It's good to think through these scenarios!`;
+                } else if (lowerCaseMessage.includes('can you explain') || lowerCaseMessage.includes('what is')) {
+                    // Try to extract what the student wants explained
+                    const match = lowerCaseMessage.match(/(explain|what is)\s+(.+)/);
+                    if (match && match[2]) {
+                        const concept = match[2].replace(/my code|this/g, '').trim(); // Remove generic references
+                        if (concept) {
+                            response = `Of course! When we talk about "${concept}", especially in ${selectedTopic}, it generally refers to [brief definition and explanation]. It's important because [importance/application]. Does that clarify it, or would you like an example?`;
+                        } else {
+                             response = `Could you specify what you'd like me to explain?`;
+                        }
+                    } else {
+                        response = `Could you specify what you'd like me to explain?`;
+                    }
                 } else if (lowerCaseMessage.includes('example')) {
-                    response = `Absolutely! Let's consider an example for ${selectedTopic}. Imagine you're building a [scenario]. To achieve [goal], you would use [concept/code snippet] like this: [provide a simple, relevant example].`;
-                } else if (lowerCaseMessage.includes('help me with')) {
-                    response = `Okay, let's break down "[specific issue]". What have you tried so far, or what are your initial ideas? That will help me understand where to start.`;
+                    response = `Absolutely! Let's consider a practical example for ${selectedTopic}. Imagine you're working on [scenario]. To accomplish [goal], you might use [concept/code snippet] in a way like this: [provide a simple, relevant example].`;
+                } else if (lowerCaseMessage.includes('help me with') || lowerCaseMessage.includes('i am stuck')) {
+                    response = `Okay, I understand you need some help with that. Can you tell me more about what you've tried so far, or where exactly you're getting stuck? Seeing your code or your thought process would be very helpful!`;
+                } else if (lowerCaseMessage.includes('thank you') || lowerCaseMessage.includes('thanks')) {
+                    response = `You're most welcome! Is there anything else I can help you with right now, or are you ready to move on to the next step?`;
+                } else if (lowerCaseMessage.includes('goodbye') || lowerCaseMessage.includes('bye')) {
+                    response = `Goodbye! Feel free to reach out anytime you need further assistance with ${selectedTopic}. Happy coding!`;
                 }
-                // Add more sophisticated checks and responses here based on common CS tutoring interactions
+
+                // If no specific keyword, offer a general follow-up related to the topic
+                if (response === `I'm not entirely sure what you mean by that. Could you rephrase or provide more context?`) {
+                    if (lowerCaseMessage.length > 5 && selectedTopic) { // If message is not too short
+                        response = `Okay, I've noted that. How does this relate to your initial issue with ${selectedTopic}, or what's the next step you're considering?`;
+                    }
+                }
 
                 return response;
             };
@@ -482,6 +509,7 @@
     </script>
 </body>
 </html>
+
 
 
 
