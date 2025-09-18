@@ -52,8 +52,6 @@
 
     #whiteboard {
       border: 1px solid black;
-      width: 100%;
-      height: 200px;
     }
 
     #code-editor {
@@ -86,116 +84,7 @@
       <option>Java</option>
     </select>
 
-    <label for="problem">Describe Your Problem:</label>
-    <textarea id="problem" rows="4" placeholder="Type your issue here..."></textarea>
-
-    <button onclick="submitForm()">Get Help</button>
-  </div>
-
-  <!-- Step 2: Loading Screen -->
-  <div id="loading-page" class="hidden">
-    <h2>Linking you to a tutor...</h2>
-  </div>
-
-  <!-- Step 3: Live Session -->
-  <div id="session-page" class="hidden">
-    <h2>Live Tutoring Session</h2>
-    <div class="flex-row">
-      <!-- Left Panel -->
-      <div class="column">
-        <h4>Text Editor</h4>
-        <textarea rows="5" placeholder="Take notes here..."></textarea>
-
-        <h4>Code Editor</h4>
-        <div id="code-editor"></div>
-
-        <h4>Whiteboard</h4>
-        <canvas id="whiteboard"></canvas>
-      </div>
-
-      <!-- Right Panel -->
-      <div class="column" style="max-width: 300px;">
-        <div id="video"><p>[Tutor Video Here]</p></div>
-
-        <h4>Chat</h4>
-        <div id="chat-messages"></div>
-        <input id="chat-input" placeholder="Type a message...">
-        <button onclick="sendMessage()">Send</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Monaco Editor -->
-<script src="https://unpkg.com/monaco-editor@0.34.1/min/vs/loader.js"></script>
-
-<!-- Fabric.js for Whiteboard -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.6.0/fabric.min.js"></script>
-
-<script>
-  const selectionPage = document.getElementById("selection-page");
-  const loadingPage = document.getElementById("loading-page");
-  const sessionPage = document.getElementById("session-page");
-  const chatMessages = document.getElementById("chat-messages");
-  const chatInput = document.getElementById("chat-input");
-
-  let editor;
-
-  function submitForm() {
-    const topic = document.getElementById("topic").value;
-    const language = document.getElementById("language").value;
-    const problem = document.getElementById("problem").value;
-
-    if (!topic || !problem) {
-      alert("Please select a topic and describe your problem.");
-      return;
-    }
-
-    selectionPage.classList.add("hidden");
-    loadingPage.classList.remove("hidden");
-
-    setTimeout(() => {
-      loadingPage.classList.add("hidden");
-      sessionPage.classList.remove("hidden");
-
-      // Load code editor
-      require.config({ paths: { vs: "https://unpkg.com/monaco-editor@0.34.1/min/vs" }});
-      require(["vs/editor/editor.main"], function () {
-        editor = monaco.editor.create(document.getElementById("code-editor"), {
-          value: "// Write your code here...",
-          language: language.toLowerCase() || "javascript",
-          theme: "vs-dark"
-        });
-      });
-
-      // Setup whiteboard
-      new fabric.Canvas("whiteboard");
-    }, 2000); // Simulate tutor linking
-  }
-
-  function sendMessage() {
-    const msg = chatInput.value.trim();
-    if (!msg) return;
-
-    appendMessage("You", msg);
-    chatInput.value = "";
-
-    // Simulated tutor reply
-    setTimeout(() => {
-      appendMessage("Tutor", "Thanks! Let me take a look.");
-    }, 1000);
-  }
-
-  function appendMessage(sender, text) {
-    const msgElem = document.createElement("div");
-    msgElem.innerHTML = `<b>${sender}:</b> ${text}`;
-    chatMessages.appendChild(msgElem);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
-</script>
-
-</body>
-</html>
+    <label for="problem">Des
 
 
 
