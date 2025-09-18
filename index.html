@@ -1,514 +1,202 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CS Tutoring Platform</title>
-    <style>
-        /* CSS Styling for the SPA Layout */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+  <meta charset="UTF-8">
+  <title>CS Tutoring Platform</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
 
-        #app {
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            overflow: hidden;
-            width: 90%;
-            max-width: 1200px;
-            display: flex;
-            flex-direction: column;
-            min-height: 600px;
-        }
+    #app {
+      padding: 20px;
+    }
 
-        .page {
-            display: none;
-            padding: 20px;
-            flex-grow: 1;
-        }
+    .hidden {
+      display: none;
+    }
 
-        .page.active {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
+    .flex-row {
+      display: flex;
+      gap: 20px;
+    }
 
-        /* Welcome Page Styling */
-        #welcome-page h1 {
-            color: #333;
-            margin-bottom: 20px;
-        }
+    .column {
+      flex: 1;
+    }
 
-        .topic-selection button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            margin: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
+    textarea, select, input, button {
+      display: block;
+      margin-bottom: 10px;
+      width: 100%;
+    }
 
-        .topic-selection button:hover {
-            background-color: #0056b3;
-        }
+    #chat-messages {
+      height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 5px;
+      background: #f9f9f9;
+    }
 
-        .chat-input-initial {
-            margin-top: 20px;
-            width: 80%;
-            max-width: 500px;
-        }
+    #video {
+      height: 200px;
+      background: #ddd;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 10px;
+    }
 
-        #initial-issue {
-            width: 100%;
-            height: 100px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            box-sizing: border-box;
-        }
+    #whiteboard {
+      border: 1px solid black;
+      width: 100%;
+      height: 200px;
+    }
 
-        #submit-issue {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        #submit-issue:hover {
-            background-color: #218838;
-        }
-
-        /* Connecting Page Styling */
-        #connecting-page {
-            background-color: #e9ecef;
-        }
-
-        #connecting-page h1 {
-            color: #495057;
-        }
-
-        /* Tutoring Session Page Styling */
-        #tutoring-session-page.active {
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding: 0;
-        }
-
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            flex: 3;
-            padding: 20px;
-        }
-
-        .video-box {
-            position: relative;
-            width: 100%;
-            padding-top: 56.25%; /* 16:9 Aspect Ratio */
-            background-color: #000;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .video-box video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        #local-video {
-            width: 150px; /* Smaller size for local preview */
-            height: 100px;
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            z-index: 10;
-            border: 2px solid white;
-            border-radius: 5px;
-        }
-
-        .editors-container {
-            display: flex;
-            gap: 20px;
-            flex-grow: 1;
-        }
-
-        .text-editor-box, .code-editor-box {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            background-color: #f9f9f9;
-        }
-
-        .text-editor-box h3, .code-editor-box h3 {
-            margin-top: 0;
-            color: #333;
-        }
-
-        #notes-editor, #code-editor {
-            width: 100%;
-            flex-grow: 1;
-            min-height: 150px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 14px;
-            resize: vertical;
-            box-sizing: border-box;
-        }
-
-        #language-input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-
-        #run-code-button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-            align-self: flex-start;
-        }
-
-        #run-code-button:hover {
-            background-color: #0056b3;
-        }
-
-        .chat-box {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            border-left: 1px solid #ddd;
-            padding: 20px;
-            background-color: #f0f2f5;
-        }
-
-        .chat-box h3 {
-            margin-top: 0;
-            color: #333;
-        }
-
-        #chat-messages {
-            flex-grow: 1;
-            overflow-y: auto;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 10px;
-            margin-bottom: 10px;
-            background-color: #fff;
-        }
-
-        .chat-message {
-            margin-bottom: 8px;
-            padding: 5px 10px;
-            border-radius: 5px;
-            max-width: 80%;
-            word-wrap: break-word; /* Ensure long words wrap */
-        }
-
-        .chat-message.user {
-            background-color: #e6f7ff;
-            align-self: flex-end;
-            margin-left: auto;
-            text-align: right;
-        }
-
-        .chat-message.tutor {
-            background-color: #e2f0e2;
-            align-self: flex-start;
-            margin-right: auto;
-            text-align: left;
-        }
-
-        #chat-input {
-            width: calc(100% - 70px);
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-right: 10px;
-            box-sizing: border-box;
-        }
-
-        #send-chat {
-            background-color: #6c757d;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        #send-chat:hover {
-            background-color: #5a6268;
-        }
-    </style>
+    #code-editor {
+      height: 200px;
+      border: 1px solid #ccc;
+    }
+  </style>
 </head>
 <body>
-    <div id="app">
-        <!-- Welcome Page -->
-        <section id="welcome-page" class="page active">
-            <h1>Welcome to CS Tutoring!</h1>
-            <p>Select a topic to get started:</p>
-            <div class="topic-selection">
-                <button data-topic="Python">Python</button>
-                <button data-topic="Java">Java</button>
-                <button data-topic="C++">C++</button>
-                <button data-topic="Web Development">Web Development</button>
-            </div>
-            <div class="chat-input-initial">
-                <textarea id="initial-issue" placeholder="Describe your specific issue..."></textarea>
-                <button id="submit-issue">Submit and Find Tutor</button>
-            </div>
-        </section>
 
-        <!-- Connecting Page -->
-        <section id="connecting-page" class="page">
-            <h1>Connecting you to a tutor...</h1>
-            <p>Please wait while we find the best tutor for your needs.</p>
-        </section>
+<div id="app">
+  <!-- Step 1: Selection Page -->
+  <div id="selection-page">
+    <h1>CS Tutoring Platform</h1>
 
-        <!-- Tutoring Session Page -->
-        <section id="tutoring-session-page" class="page">
-            <div class="main-content">
-                <div class="video-box">
-                    <video id="local-video" autoplay muted></video>
-                    <video id="remote-video" autoplay></video>
-                </div>
-                <div class="editors-container">
-                    <div class="text-editor-box">
-                        <h3>Notes</h3>
-                        <textarea id="notes-editor" placeholder="Your notes go here..."></textarea>
-                    </div>
-                    <div class="code-editor-box">
-                        <h3>Code Editor</h3>
-                        <input type="text" id="language-input" placeholder="Programming Language (e.g., Python, Java)">
-                        <textarea id="code-editor" placeholder="Write or paste your code here..."></textarea>
-                        <button id="run-code-button">Run</button>
-                    </div>
-                </div>
-            </div>
-            <div class="chat-box">
-                <h3>Chat with Tutor</h3>
-                <div id="chat-messages"></div>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="chat-input" placeholder="Type your message...">
-                    <button id="send-chat">Send</button>
-                </div>
-            </div>
-        </section>
+    <label for="topic">Select Topic:</label>
+    <select id="topic">
+      <option value="">-- Choose a Topic --</option>
+      <option>Data Structures</option>
+      <option>Discrete Structures</option>
+      <option>Intro to Theory Comp.</option>
+    </select>
+
+    <label for="language">Select Programming Language:</label>
+    <select id="language">
+      <option value="">-- Choose a Language --</option>
+      <option>Python</option>
+      <option>JavaScript</option>
+      <option>C++</option>
+      <option>Java</option>
+    </select>
+
+    <label for="problem">Describe Your Problem:</label>
+    <textarea id="problem" rows="4" placeholder="Type your issue here..."></textarea>
+
+    <button onclick="submitForm()">Get Help</button>
+  </div>
+
+  <!-- Step 2: Loading Screen -->
+  <div id="loading-page" class="hidden">
+    <h2>Linking you to a tutor...</h2>
+  </div>
+
+  <!-- Step 3: Live Session -->
+  <div id="session-page" class="hidden">
+    <h2>Live Tutoring Session</h2>
+    <div class="flex-row">
+      <!-- Left Panel -->
+      <div class="column">
+        <h4>Text Editor</h4>
+        <textarea rows="5" placeholder="Take notes here..."></textarea>
+
+        <h4>Code Editor</h4>
+        <div id="code-editor"></div>
+
+        <h4>Whiteboard</h4>
+        <canvas id="whiteboard"></canvas>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="column" style="max-width: 300px;">
+        <div id="video"><p>[Tutor Video Here]</p></div>
+
+        <h4>Chat</h4>
+        <div id="chat-messages"></div>
+        <input id="chat-input" placeholder="Type a message...">
+        <button onclick="sendMessage()">Send</button>
+      </div>
     </div>
+  </div>
+</div>
 
-    <script>
-        ​<light>// JavaScript for Interactive Functionality​</light>
-        document.addEventListener('DOMContentLoaded', () => {
-            const welcomePage = document.getElementById('welcome-page');
-            const connectingPage = document.getElementById('connecting-page');
-            const tutoringSessionPage = document.getElementById('tutoring-session-page');
+<!-- Monaco Editor -->
+<script src="https://unpkg.com/monaco-editor@0.34.1/min/vs/loader.js"></script>
 
-            const topicButtons = document.querySelectorAll('.topic-selection button');
-            const submitIssueButton = document.getElementById('submit-issue');
-            const initialIssueTextarea = document.getElementById('initial-issue');
+<!-- Fabric.js for Whiteboard -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.6.0/fabric.min.js"></script>
 
-            const localVideo = document.getElementById('local-video');
-            const remoteVideo = document.getElementById('remote-video');
-            const chatMessages = document.getElementById('chat-messages');
-            const chatInput = document.getElementById('chat-input');
-            const sendChatButton = document.getElementById('send-chat');
-            const runCodeButton = document.getElementById('run-code-button');
-            const codeEditor = document.getElementById('code-editor');
-            const languageInput = document.getElementById('language-input');
+<script>
+  const selectionPage = document.getElementById("selection-page");
+  const loadingPage = document.getElementById("loading-page");
+  const sessionPage = document.getElementById("session-page");
+  const chatMessages = document.getElementById("chat-messages");
+  const chatInput = document.getElementById("chat-input");
 
-            let selectedTopic = '';
-            let userInitialIssue = ''; // Renamed for clarity to avoid confusion with ongoing chat
-            let tutorContext = {}; // To store context for more intelligent replies
+  let editor;
 
-            // Function to show a page and hide others
-            const showPage = (pageToShow) => {
-                document.querySelectorAll('.page').forEach(page => {
-                    page.classList.remove('active');
-                });
-                pageToShow.classList.add('active');
-            };
+  function submitForm() {
+    const topic = document.getElementById("topic").value;
+    const language = document.getElementById("language").value;
+    const problem = document.getElementById("problem").value;
 
-            // Topic selection
-            topicButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    topicButtons.forEach(btn => btn.style.backgroundColor = '#007bff'); // Reset color
-                    button.style.backgroundColor = '#0056b3'; // Highlight selected
-                    selectedTopic = button.dataset.topic;
-                    console.log('Selected Topic:', selectedTopic);
-                });
-            });
+    if (!topic || !problem) {
+      alert("Please select a topic and describe your problem.");
+      return;
+    }
 
-            // Submit issue and find tutor
-            submitIssueButton.addEventListener('click', () => {
-                userInitialIssue = initialIssueTextarea.value.trim();
-                if (selectedTopic && userInitialIssue) {
-                    console.log('User Initial Issue:', userInitialIssue);
-                    showPage(connectingPage);
-                    // Simulate tutor connection
-                    setTimeout(() => {
-                        showPage(tutoringSessionPage);
-                        initializeVideoCall();
-                        appendChatMessage('Tutor', `Hello! I'm your tutor for ${selectedTopic}. You mentioned your initial issue is: "${userInitialIssue}". Let's work through this together. What's the first thing you'd like to discuss or show me?`, 'tutor');
-                    }, 3000); // Simulate 3-second connection time
-                } else {
-                    alert('Please select a topic and describe your issue.');
-                }
-            });
+    selectionPage.classList.add("hidden");
+    loadingPage.classList.remove("hidden");
 
-            // Initialize Video Call (Placeholder for WebRTC or similar API)
-            const initializeVideoCall = async () => {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                    localVideo.srcObject = stream;
-                    console.log("Local video stream acquired.");
-                } catch (error) {
-                    console.error("Error accessing media devices:", error);
-                    alert("Could not access camera/microphone. Please ensure permissions are granted.");
-                }
-            };
+    setTimeout(() => {
+      loadingPage.classList.add("hidden");
+      sessionPage.classList.remove("hidden");
 
-            // Tutor response logic
-            const generateTutorResponse = (studentMessage) => {
-                const lowerCaseMessage = studentMessage.toLowerCase();
-                let response = `I'm not entirely sure what you mean by that. Could you rephrase or provide more context?`; // Default confusion response
-
-                // Greetings
-                if (lowerCaseMessage.includes('hello') || lowerCaseMessage.includes('hi') || lowerCaseMessage.includes('hey')) {
-                    return `Hello there! How can I assist you further with ${selectedTopic} today?`;
-                }
-
-                // Check for correctness/solution related questions
-                if (lowerCaseMessage.includes('am i right') || lowerCaseMessage.includes('is this correct') || lowerCaseMessage.includes('is this the way') || lowerCaseMessage.includes('problem solved') || lowerCaseMessage.includes('should i')) {
-                    const random = Math.random();
-                    if (random < 0.5) { // 50% chance of 'yes'
-                        response = `Yes, that's a very good approach! Your understanding of [relevant concept] seems solid, and applying it this way is efficient because [brief explanation].`;
-                    } else { // 50% chance of 'no'
-                        response = `Hmm, I see what you're trying to do, but that might not be the most effective way for this particular problem. The main issue could be with [specific error/misconception]. Perhaps consider [alternative approach/concept] because [explanation of why it's better/different]. What are your thoughts on that?`;
-                    }
-                } else if (lowerCaseMessage.includes('what if') || lowerCaseMessage.includes('if i do')) {
-                    response = `That's a great "what if" question! If you were to [student's suggestion/action], then [likely consequence/result] would happen due to [explanation related to ${selectedTopic}]. It's good to think through these scenarios!`;
-                } else if (lowerCaseMessage.includes('can you explain') || lowerCaseMessage.includes('what is')) {
-                    // Try to extract what the student wants explained
-                    const match = lowerCaseMessage.match(/(explain|what is)\s+(.+)/);
-                    if (match && match[2]) {
-                        const concept = match[2].replace(/my code|this/g, '').trim(); // Remove generic references
-                        if (concept) {
-                            response = `Of course! When we talk about "${concept}", especially in ${selectedTopic}, it generally refers to [brief definition and explanation]. It's important because [importance/application]. Does that clarify it, or would you like an example?`;
-                        } else {
-                             response = `Could you specify what you'd like me to explain?`;
-                        }
-                    } else {
-                        response = `Could you specify what you'd like me to explain?`;
-                    }
-                } else if (lowerCaseMessage.includes('example')) {
-                    response = `Absolutely! Let's consider a practical example for ${selectedTopic}. Imagine you're working on [scenario]. To accomplish [goal], you might use [concept/code snippet] in a way like this: [provide a simple, relevant example].`;
-                } else if (lowerCaseMessage.includes('help me with') || lowerCaseMessage.includes('i am stuck')) {
-                    response = `Okay, I understand you need some help with that. Can you tell me more about what you've tried so far, or where exactly you're getting stuck? Seeing your code or your thought process would be very helpful!`;
-                } else if (lowerCaseMessage.includes('thank you') || lowerCaseMessage.includes('thanks')) {
-                    response = `You're most welcome! Is there anything else I can help you with right now, or are you ready to move on to the next step?`;
-                } else if (lowerCaseMessage.includes('goodbye') || lowerCaseMessage.includes('bye')) {
-                    response = `Goodbye! Feel free to reach out anytime you need further assistance with ${selectedTopic}. Happy coding!`;
-                }
-
-                // If no specific keyword, offer a general follow-up related to the topic
-                if (response === `I'm not entirely sure what you mean by that. Could you rephrase or provide more context?`) {
-                    if (lowerCaseMessage.length > 5 && selectedTopic) { // If message is not too short
-                        response = `Okay, I've noted that. How does this relate to your initial issue with ${selectedTopic}, or what's the next step you're considering?`;
-                    }
-                }
-
-                return response;
-            };
-
-            // Chat functionality
-            sendChatButton.addEventListener('click', () => {
-                const message = chatInput.value.trim();
-                if (message) {
-                    appendChatMessage('You', message, 'user');
-                    chatInput.value = '';
-
-                    // Generate tutor response based on student's message
-                    const tutorResponse = generateTutorResponse(message);
-
-                    // Simulate tutor response delay
-                    setTimeout(() => {
-                        appendChatMessage('Tutor', tutorResponse, 'tutor');
-                    }, 1500 + Math.random( * 000); // Random delay for natural feel
-                }
-            });
-
-            // Allow sending chat message with Enter key
-            chatInput.addEventListener('keypress', (event) => {
-                if (event.key === 'Enter') {
-                    event.preventDefault(); // Prevent new line in input
-                    sendChatButton.click();
-                }
-            });
-
-            const appendChatMessage = (sender, message, type) => {
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('chat-message', type);
-                messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
-                chatMessages.appendChild(messageElement);
-                chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to latest message
-            };
-
-            // Run Code button functionality
-            runCodeButton.addEventListener('click', () => {
-                const code = codeEditor.value;
-                const language = languageInput.value;
-                if (code && language) {
-                    console.log(`Running ${language} code:\n${code}`);
-                    // In a real application, this would send the code to a backend compiler/interpreter
-                    // and display the results. For this SPA, it's a console log.
-                    alert(`Simulating code execution for ${language}:\n${code}\n\n(Results would appear here in a real platform)`);
-                    appendChatMessage('Tutor', `Okay, I see you've run some ${language} code. What were you expecting from this, or what part of the output is confusing you?`, 'tutor');
-                } else {
-                    alert('Please enter both the programming language and your code to run.');
-                    appendChatMessage('Tutor', `It looks like you tried to run code without specifying the language or providing any code. Could you please fill in both fields?`, 'tutor');
-                }
-            });
-
-            // Initial page load
-            showPage(welcomePage);
+      // Load code editor
+      require.config({ paths: { vs: "https://unpkg.com/monaco-editor@0.34.1/min/vs" }});
+      require(["vs/editor/editor.main"], function () {
+        editor = monaco.editor.create(document.getElementById("code-editor"), {
+          value: "// Write your code here...",
+          language: language.toLowerCase() || "javascript",
+          theme: "vs-dark"
         });
-    </script>
+      });
+
+      // Setup whiteboard
+      new fabric.Canvas("whiteboard");
+    }, 2000); // Simulate tutor linking
+  }
+
+  function sendMessage() {
+    const msg = chatInput.value.trim();
+    if (!msg) return;
+
+    appendMessage("You", msg);
+    chatInput.value = "";
+
+    // Simulated tutor reply
+    setTimeout(() => {
+      appendMessage("Tutor", "Thanks! Let me take a look.");
+    }, 1000);
+  }
+
+  function appendMessage(sender, text) {
+    const msgElem = document.createElement("div");
+    msgElem.innerHTML = `<b>${sender}:</b> ${text}`;
+    chatMessages.appendChild(msgElem);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+</script>
+
 </body>
 </html>
+
 
 
 
