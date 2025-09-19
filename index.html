@@ -1,247 +1,209 @@
-<!-- Same <head> section as before — unchanged -->
-<!-- Start body -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CS Tutoring Platform</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    header, main {
+      padding: 20px;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    select, textarea, button {
+      margin: 10px 0;
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+    }
+
+    #tutoring-section {
+      display: none;
+      border-top: 2px solid #ccc;
+      padding-top: 20px;
+    }
+
+    .flex-container {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .video-chat, .chat-box, .code-editor, .whiteboard {
+      border: 1px solid #ccc;
+      padding: 10px;
+      flex: 1 1 45%;
+      min-height: 300px;
+      position: relative;
+    }
+
+    .video {
+      width: 100%;
+      height: 200px;
+      background: #000;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #chat-messages {
+      height: 200px;
+      overflow-y: auto;
+      background: #f9f9f9;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    canvas {
+      border: 1px solid #000;
+      width: 100%;
+      height: 200px;
+    }
+
+    textarea.code-editor-area {
+      width: 100%;
+      height: 200px;
+      font-family: monospace;
+      background: #f4f4f4;
+      padding: 10px;
+    }
+
+  </style>
+</head>
 <body>
+
   <header>
     <h1>CS Tutoring Platform</h1>
   </header>
 
   <main>
-    <section id="left-panel">
-      <!-- Topic Selector -->
-      <div>
-        <label for="topic-select"><strong>Select CS Topic:</strong></label>
-        <select id="topic-select" required>
-          <option value="" disabled selected>Choose a topic</option>
-          <option>Data Structures</option>
-          <option>Intro To Theory Comp.</option>
-          <option>Discrete Structures</option>
-          <option>Algorithms</option>
-          <option>Operating Systems</option>
-          <option>Networking</option>
-        </select>
-      </div>
+    <div class="section">
+      <label for="topic-select">Choose a CS Topic:</label>
+      <select id="topic-select">
+        <option>Data Structures</option>
+        <option>Intro to Theory of Computation</option>
+        <option>Discrete Structures</option>
+        <option>Algorithms</option>
+        <option>Operating Systems</option>
+      </select>
 
-      <!-- Language Selector -->
-      <div>
-        <label for="language-select"><strong>Select Programming Language:</strong></label>
-        <select id="language-select" required>
-          <option value="" disabled selected>Choose a language</option>
-          <option value="none">No program</option>
-          <option>Python</option>
-          <option>Java</option>
-          <option>C++</option>
-          <option>JavaScript</option>
-          <option>Go</option>
-          <option>Ruby</option>
-        </select>
-      </div>
+      <label for="language-select">Choose a Programming Language (optional):</label>
+      <select id="language-select">
+        <option>None</option>
+        <option>Python</option>
+        <option>Java</option>
+        <option>C++</option>
+        <option>JavaScript</option>
+      </select>
 
-      <!-- Problem Input -->
-      <div>
-        <label for="problem-input"><strong>Describe your problem:</strong></label>
-        <textarea id="problem-input" placeholder="Type your problem here..." rows="4"></textarea>
-      </div>
+      <label for="problem-input">Describe your problem:</label>
+      <textarea id="problem-input" rows="4" placeholder="Explain what you need help with..."></textarea>
 
-      <!-- Submit -->
-      <button id="submit-btn">Find Tutor</button>
-      <div id="message-area" style="margin-top: 1rem;"></div>
+      <button onclick="startTutoring()">Find Tutor</button>
 
-      <!-- Editors -->
-      <div id="editor-container" style="display:none;">
-        <div id="text-editor">
-          <label><strong>Text Editor:</strong></label>
-          <textarea placeholder="Write notes here..."></textarea>
+      <div id="status-message"></div>
+    </div>
+
+    <div id="tutoring-section">
+      <h2>Live Session</h2>
+      <div class="flex-container">
+        <div class="video-chat">
+          <div class="video">📹 Student Video</div>
+          <div class="video" style="margin-top:10px;">📹 Tutor Video</div>
         </div>
 
-        <div id="code-editor-wrapper">
-          <label><strong>Code Editor:</strong></label>
-          <div class="code-editor-container">
-            <div class="line-numbers" id="lineNumbers"><div>1</div></div>
-            <div class="code-editor" contenteditable="true" id="codeEditor" spellcheck="false"></div>
-          </div>
-          <div class="hint-box" id="hintBox"></div>
+        <div class="chat-box">
+          <div id="chat-messages"></div>
+          <input type="text" id="chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendMessage()"/>
+        </div>
+
+        <div class="code-editor">
+          <h3>Code Editor</h3>
+          <textarea class="code-editor-area" placeholder="Write your code here..."></textarea>
+        </div>
+
+        <div class="whiteboard">
+          <h3>Whiteboard</h3>
+          <canvas id="whiteboard-canvas" width="400" height="200"></canvas>
         </div>
       </div>
-
-      <!-- Whiteboard -->
-      <div id="whiteboard-container" style="display:none;">
-        <label><strong>Whiteboard:</strong></label><br>
-        <canvas id="whiteboard" width="600" height="200"></canvas><br>
-        <button id="clear-whiteboard">Clear Whiteboard</button>
-      </div>
-    </section>
-
-    <!-- Tutor Panel -->
-    <section id="right-panel" style="display:none;">
-      <div class="video-container">
-        <div class="video-placeholder" id="tutor-video">Tutor Video</div>
-        <div class="video-placeholder" id="student-video">Your Video</div>
-      </div>
-      <div id="chat-box"></div>
-      <div id="chat-input">
-        <input type="text" placeholder="Type a message..." id="chat-message" />
-        <button id="send-chat">Send</button>
-      </div>
-    </section>
+    </div>
   </main>
 
   <script>
-    const submitBtn = document.getElementById('submit-btn');
-    const messageArea = document.getElementById('message-area');
-    const rightPanel = document.getElementById('right-panel');
-    const chatBox = document.getElementById('chat-box');
-    const chatInput = document.getElementById('chat-message');
-    const sendChatBtn = document.getElementById('send-chat');
-    const editorContainer = document.getElementById('editor-container');
-    const whiteboardContainer = document.getElementById('whiteboard-container');
-    const languageSelect = document.getElementById('language-select');
+    function startTutoring() {
+      const status = document.getElementById("status-message");
+      const tutoringSection = document.getElementById("tutoring-section");
+      const problemInput = document.getElementById("problem-input").value.trim();
 
-    const codeEditor = document.getElementById('codeEditor');
-    const lineNumbersEl = document.getElementById('lineNumbers');
-    const hintBox = document.getElementById('hintBox');
-
-    function updateLineNumbers() {
-      const text = codeEditor.innerText || '';
-      const lines = text.split('\n').length;
-      lineNumbersEl.innerHTML = '';
-      for (let i = 1; i <= lines; i++) {
-        const div = document.createElement('div');
-        div.textContent = i;
-        lineNumbersEl.appendChild(div);
-      }
-    }
-
-    function getVariableHints(text) {
-      const varNames = new Set();
-      const varDeclPattern = /\b(?:var|let|const)\s+([a-zA-Z_$][0-9a-zA-Z_$]*)/g;
-      let match;
-      while ((match = varDeclPattern.exec(text)) !== null) {
-        varNames.add(match[1]);
-      }
-      return Array.from(varNames);
-    }
-
-    function getTextBeforeCursor() {
-      const sel = window.getSelection();
-      if (!sel || sel.rangeCount === 0) return '';
-      const range = sel.getRangeAt(0).cloneRange();
-      range.selectNodeContents(codeEditor);
-      range.setEnd(sel.anchorNode, sel.anchorOffset);
-      return range.toString();
-    }
-
-    function showHints() {
-      const text = codeEditor.innerText || '';
-      const vars = getVariableHints(text);
-      const cursorText = getTextBeforeCursor();
-      const wordMatch = cursorText.match(/([a-zA-Z_$][0-9a-zA-Z_$]*)$/);
-      if (wordMatch) {
-        const prefix = wordMatch[1];
-        const suggestions = vars.filter(v => v.startsWith(prefix) && v !== prefix);
-        hintBox.textContent = suggestions.length ? 'Did you mean: ' + suggestions.join(', ') : '';
-      } else {
-        hintBox.textContent = '';
-      }
-    }
-
-    codeEditor.addEventListener('input', () => {
-      updateLineNumbers();
-      showHints();
-    });
-
-    codeEditor.addEventListener('scroll', () => {
-      lineNumbersEl.scrollTop = codeEditor.scrollTop;
-    });
-
-    // Whiteboard Drawing
-    const canvas = document.getElementById('whiteboard');
-    const ctx = canvas.getContext('2d');
-    let drawing = false;
-    let lastX = 0, lastY = 0;
-
-    canvas.addEventListener('mousedown', (e) => {
-      drawing = true;
-      const rect = canvas.getBoundingClientRect();
-      lastX = e.clientX - rect.left;
-      lastY = e.clientY - rect.top;
-    });
-    canvas.addEventListener('mouseup', () => drawing = false);
-    canvas.addEventListener('mouseout', () => drawing = false);
-    canvas.addEventListener('mousemove', (e) => {
-      if (!drawing) return;
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      ctx.beginPath();
-      ctx.moveTo(lastX, lastY);
-      ctx.lineTo(x, y);
-      ctx.stroke();
-      lastX = x;
-      lastY = y;
-    });
-
-    document.getElementById('clear-whiteboard').addEventListener('click', () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    });
-
-    // ✅ Main Button Logic: With both messages
-    submitBtn.addEventListener('click', () => {
-      const topic = document.getElementById('topic-select').value;
-      const language = languageSelect.value;
-      const problem = document.getElementById('problem-input').value.trim();
-
-      if (!topic || !language || !problem) {
-        alert('Please fill out all fields.');
+      if (!problemInput) {
+        alert("Please describe your problem first.");
         return;
       }
 
-      // 1. First message
-      messageArea.textContent = 'Finding tutor for you...';
-      rightPanel.style.display = 'none';
-      editorContainer.style.display = 'none';
-      whiteboardContainer.style.display = 'none';
-
-      // 2. Change message after 1.5 seconds
+      status.textContent = "🔄 Linking you to a tutor...";
+      
       setTimeout(() => {
-        messageArea.textContent = 'Linking you to a tutor...';
-      }, 1500);
-
-      // 3. Show interface after 2.5 seconds
-      setTimeout(() => {
-        messageArea.textContent = '';
-        rightPanel.style.display = 'flex';
-        editorContainer.style.display = 'block';
-        whiteboardContainer.style.display = 'block';
-
-        // Show or hide code editor
-        document.getElementById('code-editor-wrapper').style.display = (language === 'none') ? 'none' : 'block';
-
-        chatBox.innerHTML = '';
-      }, 2500);
-    });
-
-    sendChatBtn.addEventListener('click', sendMessage);
-    chatInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') sendMessage();
-    });
+        status.textContent = "✅ Tutor found!";
+        tutoringSection.style.display = "block";
+      }, 2000);
+    }
 
     function sendMessage() {
+      const chatBox = document.getElementById("chat-messages");
+      const chatInput = document.getElementById("chat-input");
       const msg = chatInput.value.trim();
       if (!msg) return;
-      appendChatMessage('Student', msg);
-      chatInput.value = '';
-      setTimeout(() => appendChatMessage('Tutor', "Let's work through this."), 1200);
+
+      const msgDiv = document.createElement("div");
+      msgDiv.textContent = "You: " + msg;
+      chatBox.appendChild(msgDiv);
+
+      chatInput.value = "";
+
+      // Simulated tutor response
+      setTimeout(() => {
+        const tutorMsg = document.createElement("div");
+        tutorMsg.textContent = "Tutor: Let's work through that together.";
+        chatBox.appendChild(tutorMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }, 1000);
     }
 
-    function appendChatMessage(sender, text) {
-      const div = document.createElement('div');
-      div.innerHTML = `<strong>${sender}:</strong> ${text}`;
-      chatBox.appendChild(div);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
+    // Whiteboard Drawing
+    const canvas = document.getElementById("whiteboard-canvas");
+    const ctx = canvas.getContext("2d");
+    let drawing = false;
 
-    updateLineNumbers(); // initialize line numbers
+    canvas.addEventListener("mousedown", () => drawing = true);
+    canvas.addEventListener("mouseup", () => drawing = false);
+    canvas.addEventListener("mouseout", () => drawing = false);
+    canvas.addEventListener("mousemove", draw);
+
+    function draw(e) {
+      if (!drawing) return;
+      const rect = canvas.getBoundingClientRect();
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "black";
+      ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    }
   </script>
+
 </body>
 </html>
 
