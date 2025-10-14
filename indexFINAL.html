@@ -9,6 +9,7 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
+      background: #f4f4f4;
     }
 
     #app {
@@ -31,71 +32,99 @@
     }
 
     .topics button, .languages button {
-      margin-right: 5px;
-      margin-bottom: 5px;
+      margin-right: 8px;
+      margin-bottom: 8px;
+      padding: 10px 15px;
+      font-size: 14px;
+      cursor: pointer;
     }
 
-    .chat-container, .editor-container {
+    input, textarea, button {
+      font-size: 16px;
+    }
+
+    .chat-container {
       display: flex;
-      margin-top: 10px;
+      flex-direction: row;
+      height: 100%;
     }
 
-    .video-chat {
-      width: 25%;
+    .left-pane {
+      flex: 1;
+      padding: 10px;
+    }
+
+    .right-pane {
+      width: 300px;
       display: flex;
       flex-direction: column;
-      align-items: center;
+      padding: 10px;
+      border-left: 2px solid #ccc;
     }
 
     .video-box {
       width: 100%;
       height: 150px;
       background-color: #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       margin-bottom: 10px;
+      font-weight: bold;
     }
 
     .chat-box {
-      width: 100%;
-      height: 150px;
-      overflow-y: auto;
+      flex: 1;
       border: 1px solid #aaa;
       padding: 5px;
-      background-color: #f9f9f9;
+      background-color: #fff;
+      overflow-y: auto;
+      margin-bottom: 10px;
     }
 
-    .editor-container {
+    .chat-box p {
+      margin: 4px 0;
+    }
+
+    #chat-input {
+      padding: 8px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .editor-area {
       display: flex;
-      margin-top: 10px;
       height: 300px;
+      margin-top: 15px;
     }
 
     .editor, .code-editor, .whiteboard {
       flex: 1;
       margin: 5px;
+      display: flex;
+      flex-direction: column;
     }
 
     .editor textarea, .code-editor textarea {
+      flex: 1;
       width: 100%;
-      height: 100%;
+      resize: none;
       font-family: monospace;
       font-size: 14px;
     }
 
     canvas {
+      flex: 1;
       border: 1px solid #000;
-      background-color: white;
-    }
-
-    input, textarea, button {
-      font-size: 16px;
+      background-color: #fff;
     }
   </style>
 </head>
 <body>
 <div id="app">
-  <!-- Screen 1: Topic Selection -->
+  <!-- Step 1: Topic & Language Selection -->
   <div id="screen-topic" class="screen active">
-    <h2>Select a CS Topic</h2>
+    <h2>Choose a CS Topic</h2>
     <div class="topics">
       <button onclick="selectTopic('Data Structures')">Data Structures</button>
       <button onclick="selectTopic('Intro to Theory Comp.')">Intro to Theory Comp.</button>
@@ -110,41 +139,43 @@
       <button onclick="selectLanguage('JavaScript')">JavaScript</button>
     </div>
 
-    <input id="problem-input" type="text" placeholder="Describe your problem..." style="width: 100%; margin-top: 10px;">
-    <button onclick="linkTutor()" style="margin-top: 10px;">Get Help</button>
+    <input id="problem-input" type="text" placeholder="Type your problem here..." style="width: 100%; margin-top: 10px; padding: 10px;">
+    <button onclick="linkTutor()" style="margin-top: 15px; padding: 10px 20px;">Get Help</button>
   </div>
 
-  <!-- Screen 2: Linking to tutor -->
+  <!-- Step 2: Linking Screen -->
   <div id="screen-linking" class="screen">
     <h2>Linking you to a tutor...</h2>
   </div>
 
-  <!-- Screen 3: Session -->
+  <!-- Step 3: Live Tutoring Session -->
   <div id="screen-session" class="screen">
-    <h2>Session In Progress</h2>
+    <h2>Live Session</h2>
     <div class="chat-container">
-      <div class="video-chat">
-        <div class="video-box">🎥 Tutor Video</div>
-        <div class="video-box">🎥 Student Video</div>
-        <div class="chat-box" id="chat-box">
-          <p><strong>Tutor:</strong> Hello! What can I help you with?</p>
+      <div class="left-pane">
+        <div class="editor-area">
+          <div class="editor">
+            <h4>Text Editor</h4>
+            <textarea placeholder="Write your notes..."></textarea>
+          </div>
+          <div class="code-editor">
+            <h4>Code Editor</h4>
+            <textarea placeholder="Write your code here..."></textarea>
+          </div>
+          <div class="whiteboard">
+            <h4>Whiteboard</h4>
+            <canvas id="whiteboard" width="300" height="300"></canvas>
+          </div>
         </div>
-        <input id="chat-input" type="text" placeholder="Type a message..." onkeydown="handleChat(event)">
       </div>
 
-      <div class="editor-container">
-        <div class="editor">
-          <h4>Text Editor</h4>
-          <textarea placeholder="Take notes..."></textarea>
+      <div class="right-pane">
+        <div class="video-box">Tutor Video</div>
+        <div class="video-box">Student Video</div>
+        <div class="chat-box" id="chat-box">
+          <p><strong>Tutor:</strong> Hi there! Let's get started.</p>
         </div>
-        <div class="code-editor">
-          <h4>Code Editor</h4>
-          <textarea placeholder="Type your code..."></textarea>
-        </div>
-        <div class="whiteboard">
-          <h4>Whiteboard</h4>
-          <canvas id="whiteboard" width="300" height="300"></canvas>
-        </div>
+        <input id="chat-input" type="text" placeholder="Type a message..." onkeydown="handleChat(event)">
       </div>
     </div>
   </div>
@@ -156,67 +187,69 @@
 
   function selectTopic(topic) {
     selectedTopic = topic;
-    console.log('Selected topic:', topic);
+    console.log("Selected Topic:", topic);
   }
 
   function selectLanguage(lang) {
     selectedLanguage = lang;
-    console.log('Selected language:', lang);
+    console.log("Selected Language:", lang);
   }
 
   function linkTutor() {
-    const problem = document.getElementById("problem-input").value;
+    const problem = document.getElementById("problem-input").value.trim();
     if (!problem) {
-      alert("Please describe your problem.");
+      alert("Please describe your problem first.");
       return;
     }
 
-    showScreen('screen-linking');
+    showScreen("screen-linking");
     setTimeout(() => {
-      showScreen('screen-session');
+      showScreen("screen-session");
     }, 2000); // simulate delay
   }
 
-  function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+  function showScreen(screenId) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(screenId).classList.add("active");
   }
 
   function handleChat(event) {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       const input = document.getElementById("chat-input");
       const message = input.value.trim();
-      if (message) {
+      if (message !== "") {
         const chatBox = document.getElementById("chat-box");
-        const newMsg = document.createElement("p");
-        newMsg.innerHTML = `<strong>You:</strong> ${message}`;
-        chatBox.appendChild(newMsg);
+        const p = document.createElement("p");
+        p.innerHTML = `<strong>You:</strong> ${message}`;
+        chatBox.appendChild(p);
         chatBox.scrollTop = chatBox.scrollHeight;
         input.value = "";
       }
     }
   }
 
-  // Whiteboard drawing logic
-  const canvas = document.getElementById('whiteboard');
-  const ctx = canvas.getContext('2d');
+  // Whiteboard Drawing
+  const canvas = document.getElementById("whiteboard");
+  const ctx = canvas.getContext("2d");
   let drawing = false;
 
-  canvas.addEventListener('mousedown', () => drawing = true);
-  canvas.addEventListener('mouseup', () => drawing = false);
-  canvas.addEventListener('mouseout', () => drawing = false);
-  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener("mousedown", () => drawing = true);
+  canvas.addEventListener("mouseup", () => {
+    drawing = false;
+    ctx.beginPath();
+  });
+  canvas.addEventListener("mousemove", draw);
 
-  function draw(e) {
+  function draw(event) {
     if (!drawing) return;
     const rect = canvas.getBoundingClientRect();
     ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = 'black';
-    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "black";
+    ctx.lineTo(event.clientX - rect.left, event.clientY - rect.top);
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.moveTo(event.clientX - rect.left, event.clientY - rect.top);
   }
 </script>
 </body>
