@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CS Tutoring Platform</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .screen {
+      display: none;
+      padding: 20px;
+    }
+
+    .active {
+      display: block;
+    }
+
+    .topics, .languages {
+      margin-bottom: 10px;
+    }
+
+    .topics button, .languages button {
+      margin-right: 5px;
+      margin-bottom: 5px;
+    }
+
+    .chat-container, .editor-container {
+      display: flex;
+      margin-top: 10px;
+    }
+
+    .video-chat {
+      width: 25%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .video-box {
+      width: 100%;
+      height: 150px;
+      background-color: #ccc;
+      margin-bottom: 10px;
+    }
+
+    .chat-box {
+      width: 100%;
+      height: 150px;
+      overflow-y: auto;
+      border: 1px solid #aaa;
+      padding: 5px;
+      background-color: #f9f9f9;
+    }
+
+    .editor-container {
+      display: flex;
+      margin-top: 10px;
+      height: 300px;
+    }
+
+    .editor, .code-editor, .whiteboard {
+      flex: 1;
+      margin: 5px;
+    }
+
+    .editor textarea, .code-editor textarea {
+      width: 100%;
+      height: 100%;
+      font-family: monospace;
+      font-size: 14px;
+    }
+
+    canvas {
+      border: 1px solid #000;
+      background-color: white;
+    }
+
+    input, textarea, button {
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <!-- Screen 1: Topic Selection -->
+  <div id="screen-topic" class="screen active">
+    <h2>Select a CS Topic</h2>
+    <div class="topics">
+      <button onclick="selectTopic('Data Structures')">Data Structures</button>
+      <button onclick="selectTopic('Intro to Theory Comp.')">Intro to Theory Comp.</button>
+      <button onclick="selectTopic('Discrete Structures')">Discrete Structures</button>
+    </div>
+
+    <h3>Need help with a programming language?</h3>
+    <div class="languages">
+      <button onclick="selectLanguage('Python')">Python</button>
+      <button onclick="selectLanguage('Java')">Java</button>
+      <button onclick="selectLanguage('C++')">C++</button>
+      <button onclick="selectLanguage('JavaScript')">JavaScript</button>
+    </div>
+
+    <input id="problem-input" type="text" placeholder="Describe your problem..." style="width: 100%; margin-top: 10px;">
+    <button onclick="linkTutor()" style="margin-top: 10px;">Get Help</button>
+  </div>
+
+  <!-- Screen 2: Linking to tutor -->
+  <div id="screen-linking" class="screen">
+    <h2>Linking you to a tutor...</h2>
+  </div>
+
+  <!-- Screen 3: Session -->
+  <div id="screen-session" class="screen">
+    <h2>Session In Progress</h2>
+    <div class="chat-container">
+      <div class="video-chat">
+        <div class="video-box">🎥 Tutor Video</div>
+        <div class="video-box">🎥 Student Video</div>
+        <div class="chat-box" id="chat-box">
+          <p><strong>Tutor:</strong> Hello! What can I help you with?</p>
+        </div>
+        <input id="chat-input" type="text" placeholder="Type a message..." onkeydown="handleChat(event)">
+      </div>
+
+      <div class="editor-container">
+        <div class="editor">
+          <h4>Text Editor</h4>
+          <textarea placeholder="Take notes..."></textarea>
+        </div>
+        <div class="code-editor">
+          <h4>Code Editor</h4>
+          <textarea placeholder="Type your code..."></textarea>
+        </div>
+        <div class="whiteboard">
+          <h4>Whiteboard</h4>
+          <canvas id="whiteboard" width="300" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let selectedTopic = '';
+  let selectedLanguage = '';
+
+  function selectTopic(topic) {
+    selectedTopic = topic;
+    console.log('Selected topic:', topic);
+  }
+
+  function selectLanguage(lang) {
+    selectedLanguage = lang;
+    console.log('Selected language:', lang);
+  }
+
+  function linkTutor() {
+    const problem = document.getElementById("problem-input").value;
+    if (!problem) {
+      alert("Please describe your problem.");
+      return;
+    }
+
+    showScreen('screen-linking');
+    setTimeout(() => {
+      showScreen('screen-session');
+    }, 2000); // simulate delay
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function handleChat(event) {
+    if (event.key === 'Enter') {
+      const input = document.getElementById("chat-input");
+      const message = input.value.trim();
+      if (message) {
+        const chatBox = document.getElementById("chat-box");
+        const newMsg = document.createElement("p");
+        newMsg.innerHTML = `<strong>You:</strong> ${message}`;
+        chatBox.appendChild(newMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        input.value = "";
+      }
+    }
+  }
+
+  // Whiteboard drawing logic
+  const canvas = document.getElementById('whiteboard');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+
+  canvas.addEventListener('mousedown', () => drawing = true);
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseout', () => drawing = false);
+  canvas.addEventListener('mousemove', draw);
+
+  function draw(e) {
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = 'black';
+    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+  }
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
